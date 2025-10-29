@@ -1,0 +1,124 @@
+.top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    gap: 16px;
+    background-color: #ffffff;
+    /* border: 1px solid #d1d5db; */
+    padding: 0px 12px;
+}
+
+.top-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.top-bar-center {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%);
+}
+
+.icon-button {
+  width: 28px;
+  height: 28px;
+  background: #ffffff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+
+  display: flex;             
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;              
+  line-height: 0; 
+  transition: background-color 0.2s ease;
+}
+
+.icon-button:hover {
+    background: #f3f4f6;
+}
+
+.top-bar-right {
+    display: flex;
+    gap: 12px;
+}
+.ppt-icon {
+    color: #1783FF;
+    background-color: rgba(23, 131, 255, .1);
+    border-radius: 4px;
+}
+.ppt-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 6px 10px;
+
+    background: rgba(0, 0, 0, .05);
+    border-radius: 10px;
+    cursor: pointer;
+    user-select: none;
+    border: none;
+
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    color: rgba(0, 0, 0, .6);
+    transition: background-color .3s ease-in-out;
+}
+
+.ppt-button:hover {
+    background: rgba(0, 0, 0, .1);;
+}
+
+
+
+.redo-undo-icon {
+    color: rgba(0, 0, 0, .6);
+    width: 20px;
+    height: 20px;
+}
+
+.title-input {
+    font-size: 14px;
+    padding: 2px 6px;
+    border: 1px solid #d1d5db;
+    background-color: rgba(0, 0, 0, .05);
+    border-radius: 4px;
+    color: rgba(0, 0, 0, 0.9);
+    outline: none;
+    font-family: Segoe UI;
+    transition: width 0.1s ease;
+}
+
+.title-text {
+    font-size: 14px;
+    font-family: Segoe UI;
+    padding: 2px 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: rgba(0, 0, 0, 0.9);
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.title-text:hover {
+    background-color: #f9fafb;
+}
+
+.title-edit {
+    width: 16px;
+    height: 16px;
+    color: rgba(0, 0, 0, .5);
+}
+/* TODO: переделать через грид чтобы по центру было */
+
+/* TODO: сортировать модклями а не типами */

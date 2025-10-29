@@ -1,0 +1,7 @@
+.viewport-wrapper {
+    position: relative;
+    flex-shrink: 0;
+    padding: 1px;
+    margin: auto;
+    border-radius: 6px;
+}

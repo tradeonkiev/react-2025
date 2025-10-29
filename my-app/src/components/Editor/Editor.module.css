@@ -1,0 +1,26 @@
+.editor-container {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+    height: 100%;
+}
+
+.wrapper {
+    position: relative;
+    height: 100%;
+    user-select: none;
+    overflow: auto;
+    scrollbar-gutter: stable both-edges;
+    display: flex;
+    padding: 20px;
+    outline: none !important;
+}
+
+.viewport-wrapper {
+    position: relative;
+    flex-shrink: 0;
+    padding: 1px;
+    margin: auto;
+    border-radius: 8px;
+    z-index: 1;
+}
