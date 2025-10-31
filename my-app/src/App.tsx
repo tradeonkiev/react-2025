@@ -1,35 +1,71 @@
-import React, { useState } from 'react';
+import React from 'react';
 import type { Presentation, SlideElement } from './types';
-import { initialPresentation } from './data';
 import { Header } from './components/Header/Header';
 import { SlidesList } from './components/SlidesList/SlidesList';
 import { Editor } from './components/Editor/Editor';
+import { 
+  dispatch, 
+  updateTitle, 
+  addSlide, 
+  deleteSlide, 
+  selectSlide, 
+  addTextElement, 
+  addImageElement, 
+  deleteSelectedElements,
+  cycleBackground,
+  selectElement 
+} from './Store/editor';
 import { ToolBar } from './components/ToolBar/ToolBar';
 
-function App() {
-  const [presentation, setPresentation] = useState<Presentation>(initialPresentation);
-  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+interface AppProps {
+  presentation: Presentation;
+}
 
-  const currentSlide = presentation.slides[currentSlideIndex];
+function App({ presentation }: AppProps) {
+  const currentSlideId = presentation.selection.slideIds[0];
+  const currentSlide = presentation.slides.find(slide => slide.id === currentSlideId) || presentation.slides[0];
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newTitle = e.target.value;
-    console.log('Новое название:', newTitle);
-    setPresentation({ ...presentation, title: newTitle });
+    dispatch(updateTitle, { title: e.target.value });
   };
 
   const handleElementClick = (elementId: string, element: SlideElement) => {
-    const bgColor = element.type === 'text' ? element.color : '#ffffff';
-    console.log(`ID элемента: ${elementId}, Цвет фона: ${bgColor}`);
+    dispatch(selectElement, { elementId });
   };
 
   const handleSlideClick = (slideId: string, index: number) => {
-    console.log(`ID слайда: ${slideId}, Порядковый номер: ${index + 1}`);
-    setCurrentSlideIndex(index);
+    dispatch(selectSlide, { slideId });
   };
 
-  const handleToolClick = (buttonName: string) => {
-    console.log(`Нажата кнопка: ${buttonName}`);
+  const handleToolClick = (toolName: string) => {
+    switch(toolName) {
+      case 'текста':
+        dispatch(addTextElement, { slideId: currentSlideId });
+        break;
+      case 'картинки':
+        dispatch(addImageElement, { slideId: currentSlideId });
+        break;
+      case 'background':
+        dispatch(cycleBackground, { slideId: currentSlideId });
+        break;
+      case 'мусорка':
+        dispatch(deleteSelectedElements, { slideId: currentSlideId });
+        break;
+      default:
+        console.log(`Инструмент: ${toolName}`);
+    }
+  };
+
+  const handleAddSlide = () => {
+    dispatch(addSlide);
+  };
+
+  const handleDeleteSlide = (slideId: string, index: number) => {
+    dispatch(deleteSlide, { slideId });
+  };
+
+  const handleHeaderAction = (action: string) => {
+    console.log(`Действие: ${action}`);
   };
 
   return (
@@ -44,35 +80,31 @@ function App() {
       overflow: 'hidden'
     }}>
       <Header 
-      title={presentation.title} 
-      onTitleChange={handleTitleChange} 
-      onClickElement={handleToolClick}
+        title={presentation.title} 
+        onTitleChange={handleTitleChange} 
+        onClickElement={handleHeaderAction}
       />
       
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         <SlidesList 
           slides={presentation.slides}
-          currentSlideIndex={currentSlideIndex}
+          currentSlideIndex={presentation.slides.findIndex(slide => slide.id === currentSlideId)}
           onSlideClick={handleSlideClick}
+          onAddSlide={handleAddSlide}
+          onDeleteSlide={handleDeleteSlide}
         />
         
         <Editor 
           slide={currentSlide}
           onElementClick={handleElementClick}
-          onToolClick={handleToolClick}
           width={1280}
           height={720}
+          selectedElementIds={presentation.selection.elementIds}
         />
-        
         <ToolBar
-          onToolClick={(tool) => {console.log(tool)}}
+          onToolClick={handleToolClick}
+          selectedElementIds={presentation.selection.elementIds}
         />
-        
-        {/* <PropertiesPanel 
-          slide={currentSlide}
-          currentSlideIndex={currentSlideIndex}
-          totalSlides={presentation.slides.length}
-        /> */}
       </div>
     </div>
   );

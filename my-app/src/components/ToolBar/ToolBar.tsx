@@ -1,7 +1,11 @@
 import {Type, Shapes, Image, Layers, Shredder, Wallpaper } from "lucide-react"
 import styles from './ToolBar.module.css'
 export const ToolBar = ( 
-    {onToolClick} : {onToolClick: (toolName: string) => void;}
+    {onToolClick, selectedElementIds} :
+    {
+      onToolClick: (toolName: string) => void;
+      selectedElementIds?: string[];
+    }
 ) => {
     return (
         <div className={styles['bottom-bar']}>
@@ -46,7 +50,7 @@ export const ToolBar = (
           <button 
           className={styles['icon-button']}
           onClick={
-            () => onToolClick("фон")
+            () => onToolClick("background")
           }>  
             <Wallpaper className={styles['tool-icon']}/>
           </button>

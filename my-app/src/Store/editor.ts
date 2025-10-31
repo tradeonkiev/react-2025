@@ -1,6 +1,6 @@
-import type { Presentation, Slide, SlideElement, Background, TextElement, ImageElement } from '../../types';
+import type { Presentation, Slide, TextElement, ImageElement, Background } from '../types';
+import { changeSlideBackground } from '../utils';
 
-// Модель редактора
 let editor: Presentation | null = null;
 let editorChangeHandler: (() => void) | null = null;
 
@@ -53,7 +53,7 @@ export const deleteSlide = (editor: Presentation, params: { slideId: string }): 
   };
 };
 
-export const selectSlide = (editor: Presentation, params: { slideId: string; slideIndex: number }): Presentation => {
+export const selectSlide = (editor: Presentation, params: { slideId: string }): Presentation => {
   return {
     ...editor,
     selection: {
@@ -97,12 +97,22 @@ export const addTextElement = (editor: Presentation, params: { slideId: string }
 };
 
 export const addImageElement = (editor: Presentation, params: { slideId: string }): Presentation => {
+  
+  const Images: string[] = 
+  [
+    'https://i.pinimg.com/736x/62/64/57/626457731d0ab3dc14118c6c4f348661.jpg', 
+    'https://i.pinimg.com/1200x/1f/c7/cd/1fc7cdb1d3fc240477dc9c215fa6dc09.jpg', 
+    'https://i.pinimg.com/736x/c5/fc/4a/c5fc4ad0137578f3ba6673e9426560cb.jpg', 
+    'https://i.pinimg.com/736x/46/8f/5c/468f5c5140266bf9898b5d363ec5032d.jpg', 
+    'https://i.pinimg.com/736x/ca/32/79/ca32795567326c5385d89dce5fb47f2f.jpg', 
+    'https://i.pinimg.com/736x/29/7e/8c/297e8c19a0057ac9f2a5a479551e4b19.jpg'
+  ]
   const newImageElement: ImageElement = {
     id: `image-${Date.now()}`,
     type: 'image',
-    src: 'https://via.placeholder.com/300x200/3b82f6/ffffff?text=Image',
+    src: Images[Math.ceil(Math.random() * 5)],
     position: { x: 150, y: 150 },
-    size: { width: 300, height: 200 }
+    size: { width: 500, height: 500 }
   };
 
   const updatedSlides = editor.slides.map(slide => {
@@ -127,18 +137,18 @@ export const addImageElement = (editor: Presentation, params: { slideId: string 
 
 export const deleteSelectedElements = (editor: Presentation, params: { slideId: string }): Presentation => {
   const updatedSlides = editor.slides.map(slide => {
-    if (slide.id === params.slideId) {
-      // Удаляем только выбранные элементы
-      const elementsToKeep = slide.elements.filter(
-        element => !editor.selection.elementIds.includes(element.id)
-      );
-      
-      return {
-        ...slide,
-        elements: elementsToKeep
-      };
+    if (slide.id !== params.slideId) {
+      return slide;
     }
-    return slide;
+
+    const remainingElements = slide.elements.filter(
+      element => !editor.selection.elementIds.includes(element.id)
+    );
+
+    return {
+      ...slide,
+      elements: remainingElements
+    };
   });
 
   return {
@@ -172,51 +182,37 @@ export const deleteAllElements = (editor: Presentation, params: { slideId: strin
   };
 };
 
-export const changeBackground = (editor: Presentation, params: { slideId: string }): Presentation => {
+export const cycleBackground = (editor: Presentation, params: { slideId: string }): Presentation => {
   const backgrounds: Background[] = [
-    { type: 'none' },
-    { type: 'color', value: '#ffffff' },
-    { type: 'color', value: '#f3f4f6' },
-    { type: 'color', value: '#3b82f6' },
-    { type: 'color', value: '#ef4444' },
-    { type: 'color', value: '#10b981' },
-    { type: 'color', value: '#f59e0b' },
+    { type: 'color', value: '#ffffff' },  
+    { type: 'color', value: '#f3f4f6' },   
+    { type: 'color', value: '#3b82f6' },  
+    { type: 'color', value: '#ef4444' },   
+    { type: 'color', value: '#10b981' },    
+    { type: 'color', value: '#f59e0b' },   
+    { type: 'none' },                   
   ];
 
   const currentSlide = editor.slides.find(slide => slide.id === params.slideId);
   if (!currentSlide) return editor;
-
   const currentBgIndex = backgrounds.findIndex(bg => {
     if (bg.type !== currentSlide.background.type) return false;
     if (bg.type === 'color' && currentSlide.background.type === 'color') {
       return bg.value === currentSlide.background.value;
     }
-    if (bg.type === 'image' && currentSlide.background.type === 'image') {
-      return bg.src === currentSlide.background.src;
-    }
-    return bg.type === currentSlide.background.type;
+    return true;
   });
   
-  const nextBgIndex = (currentBgIndex + 1) % backgrounds.length;
+  const nextBgIndex = currentBgIndex === -1 ? 0 : (currentBgIndex + 1) % backgrounds.length;
   const newBackground = backgrounds[nextBgIndex];
 
-  const updatedSlides = editor.slides.map(slide => {
-    if (slide.id === params.slideId) {
-      return {
-        ...slide,
-        background: newBackground
-      };
-    }
-    return slide;
+  return changeSlideBackground(editor, { 
+    slideId: params.slideId, 
+    background: newBackground 
   });
-
-  return {
-    ...editor,
-    slides: updatedSlides
-  };
 };
 
-export const selectElement = (editor: Presentation, params: { elementId: string; slideId: string }): Presentation => {
+export const selectElement = (editor: Presentation, params: { elementId: string }): Presentation => {
   return {
     ...editor,
     selection: {
@@ -226,11 +222,12 @@ export const selectElement = (editor: Presentation, params: { elementId: string;
   };
 };
 
-// Dispatch функция
 export const dispatch = (modifier: Function, params?: any): void => {
   if (!editor) return;
 
   const newEditor = modifier(editor, params);
+  console.log('Old state:', editor);
+  console.log('New state:', newEditor);
   editor = newEditor;
 
   if (editorChangeHandler) {

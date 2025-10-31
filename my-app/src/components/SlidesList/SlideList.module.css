@@ -143,3 +143,16 @@
     width: 12px;
     color: rgba(0, 0, 0, .6);
 }
+
+::-webkit-scrollbar
+{
+    width: 5px;
+    height: 5px;
+    background-color: transparent;
+    color: rgb(243, 244, 246);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #e1e1e1;
+    border-radius: 3px;
+}

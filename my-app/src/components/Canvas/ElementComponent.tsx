@@ -2,11 +2,12 @@ import React from "react";
 import type { SlideElement } from '../../types';
 
 export const ElementComponent = (
-  { element, onClick, canvasScale }: 
+  { element, onClick, canvasScale, isSelected }: 
   {
     element: SlideElement;
     onClick: () => void;
     canvasScale: number;
+    isSelected: boolean;
   }
 ) => {
   const [isHovered, setIsHovered] = React.useState(false);
@@ -24,7 +25,11 @@ export const ElementComponent = (
         height: element.size.height * canvasScale,
         cursor: 'pointer',
         transition: 'box-shadow 0.2s',
-        boxShadow: isHovered ? '0 0 0 2px #60a5fa' : 'none'
+        boxShadow: isSelected 
+          ? '0 0 0 2px #60a5fa' 
+          : isHovered 
+          ? '0 0 0 2px #93c5fd' 
+          : 'none'
       }}
     >
       {element.type === 'text' ? (
