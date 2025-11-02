@@ -1,14 +1,8 @@
-import type { Presentation, Slide, TextElement, ImageElement, Background } from '../types';
+import type { Presentation, Slide, TextElement, ImageElement, Background, DragState, Position} from '../types';
 import { changeSlideBackground } from '../utils';
 
 let editor: Presentation | null = null;
 let editorChangeHandler: (() => void) | null = null;
-
-// Функции-модификаторы
-export const setEditor = (newEditor: Presentation): Presentation => {
-  editor = newEditor;
-  return editor;
-};
 
 export const updateTitle = (editor: Presentation, params: { title: string }): Presentation => {
   return {
@@ -161,27 +155,6 @@ export const deleteSelectedElements = (editor: Presentation, params: { slideId: 
   };
 };
 
-export const deleteAllElements = (editor: Presentation, params: { slideId: string }): Presentation => {
-  const updatedSlides = editor.slides.map(slide => {
-    if (slide.id === params.slideId) {
-      return {
-        ...slide,
-        elements: []
-      };
-    }
-    return slide;
-  });
-
-  return {
-    ...editor,
-    slides: updatedSlides,
-    selection: {
-      ...editor.selection,
-      elementIds: []
-    }
-  };
-};
-
 export const cycleBackground = (editor: Presentation, params: { slideId: string }): Presentation => {
   const backgrounds: Background[] = [
     { type: 'color', value: '#ffffff' },  
@@ -189,22 +162,14 @@ export const cycleBackground = (editor: Presentation, params: { slideId: string 
     { type: 'color', value: '#3b82f6' },  
     { type: 'color', value: '#ef4444' },   
     { type: 'color', value: '#10b981' },    
-    { type: 'color', value: '#f59e0b' },   
+    { type: 'color', value: '#f59e0b' },
+    { type: 'image', src: 'https://i.pinimg.com/736x/76/88/51/768851d3863fc7d8403d43e572ceb350.jpg'},
+    { type: 'image', src: 'https://i.pinimg.com/736x/c9/55/6c/c9556c51f8732bdeac67eafebdaeb6d3.jpg'},
     { type: 'none' },                   
   ];
 
-  const currentSlide = editor.slides.find(slide => slide.id === params.slideId);
-  if (!currentSlide) return editor;
-  const currentBgIndex = backgrounds.findIndex(bg => {
-    if (bg.type !== currentSlide.background.type) return false;
-    if (bg.type === 'color' && currentSlide.background.type === 'color') {
-      return bg.value === currentSlide.background.value;
-    }
-    return true;
-  });
-  
-  const nextBgIndex = currentBgIndex === -1 ? 0 : (currentBgIndex + 1) % backgrounds.length;
-  const newBackground = backgrounds[nextBgIndex];
+  const newBackground = backgrounds[Math.ceil(Math.random() * (backgrounds.length - 1))];
+  console.log(newBackground);
 
   return changeSlideBackground(editor, { 
     slideId: params.slideId, 
@@ -235,6 +200,11 @@ export const dispatch = (modifier: Function, params?: any): void => {
   }
 };
 
+export const setEditor = (newEditor: Presentation): Presentation => {
+  editor = newEditor;
+  return editor;
+};
+
 export const getEditor = (): Presentation | null => {
   return editor;
 };
@@ -242,3 +212,80 @@ export const getEditor = (): Presentation | null => {
 export const addEditorChangeHandler = (handler: () => void): void => {
   editorChangeHandler = handler;
 };
+
+// editor.ts - добавим функции для drag and drop
+export const startDrag = (editor: Presentation, params: { elementId: string; startPosition: Position }): Presentation => {
+  const element = editor.slides
+    .find(slide => slide.id === editor.selection.slideIds[0])
+    ?.elements.find(el => el.id === params.elementId);
+
+  if (!element) return editor;
+
+  return {
+    ...editor,
+    dragState: {
+      isDragging: true,
+      dragElementId: params.elementId,
+      startPosition: params.startPosition,
+      currentPosition: params.startPosition,
+      offset: {
+        x: params.startPosition.x - element.position.x,
+        y: params.startPosition.y - element.position.y
+      }
+    }
+  };
+};
+
+export const updateDrag = (editor: Presentation, params: { currentPosition: Position }): Presentation => {
+  if (!editor.dragState?.isDragging || !editor.dragState.dragElementId) {
+    return editor;
+  }
+
+  return {
+    ...editor,
+    dragState: {
+      ...editor.dragState,
+      currentPosition: params.currentPosition
+    }
+  };
+};
+
+export const endDrag = (editor: Presentation): Presentation => {
+  if (!editor.dragState?.isDragging || !editor.dragState.dragElementId) {
+    return editor;
+  }
+
+  const { dragElementId, currentPosition, offset } = editor.dragState;
+  
+  const newPosition = {
+    x: currentPosition.x - offset.x,
+    y: currentPosition.y - offset.y
+  };
+
+  const updatedSlides = editor.slides.map(slide => {
+    if (slide.id === editor.selection.slideIds[0]) {
+      return {
+        ...slide,
+        elements: slide.elements.map(element => {
+          if (element.id === dragElementId) {
+            return {
+              ...element,
+              position: newPosition
+            };
+          }
+          return element;
+        })
+      };
+    }
+    return slide;
+  });
+
+  return {
+    ...editor,
+    slides: updatedSlides,
+    dragState: undefined
+  };
+};
+
+
+//TODO: переделать изменение названия на выход с окна 

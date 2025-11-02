@@ -10,37 +10,37 @@ export const ToolBar = (
     return (
         <div className={styles['bottom-bar']}>
           <button 
-          className={styles['icon-button']}
-          onClick={
-            () => onToolClick("текста")
+            className={styles['icon-button']}
+            onClick={
+              () => onToolClick("text")
           }>
             <Type className={styles['tool-icon']}/>
           </button>
           <button 
-          className={styles['icon-button']}
-          onClick={
-            () => onToolClick("обьекты")
+            className={styles['icon-button']}
+            onClick={
+              () => onToolClick("shape")
           }>
             <Shapes className={styles['tool-icon']}/>
           </button>
           <button 
-          className={styles['icon-button']}
-          onClick={
-            () => onToolClick("картинки")
+            className={styles['icon-button']}
+            onClick={
+              () => onToolClick("image")
           }>
             <Image className={styles['tool-icon']}/>
           </button>
           <button 
-          className={styles['icon-button']}
-          onClick={
-            () => onToolClick("слои")
+            className={styles['icon-button']}
+            onClick={
+              () => onToolClick("layers")
           }>
             <Layers className={styles['tool-icon']}/>
           </button>
           <button 
-          className={styles['icon-button']}
-          onClick={
-            () => onToolClick("мусорка")
+            className={styles['icon-button']}
+            onClick={
+              () => onToolClick("trash")
           }>
             <Shredder className={styles['tool-icon']}/>
           </button>
@@ -48,9 +48,9 @@ export const ToolBar = (
           <div className={styles['bottom-bar-divider']}></div>
 
           <button 
-          className={styles['icon-button']}
-          onClick={
-            () => onToolClick("background")
+            className={styles['icon-button']}
+            onClick={
+              () => onToolClick("background")
           }>  
             <Wallpaper className={styles['tool-icon']}/>
           </button>

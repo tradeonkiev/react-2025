@@ -37,6 +37,7 @@ const SlidePreview = (
           {[styles['active']] : isActive}
         )}
     >
+      <div className={styles['protective-film']}></div>
       <Viewport 
         slide={slide}
         width={264}
@@ -48,10 +49,7 @@ const SlidePreview = (
       </div>
       
       <button 
-        onClick={(e) => {
-          e.stopPropagation();
-          onAddSlide();
-        }}
+        onClick={() => onAddSlide()}
         className={
           clsx(
             styles['add-slide'],
@@ -59,31 +57,17 @@ const SlidePreview = (
       )}>
         <Plus className={styles['add-slide-icon']}/>
       </button>
-      
-      {isHovered && (
-        <button 
-          onClick={(e) => {
-            e.stopPropagation();
-            onDeleteSlide();
-          }}
-          style={{
-            position: 'absolute',
-            top: '4px',
-            right: '4px',
-            width: '20px',
-            height: '20px',
-            borderRadius: '4px',
-            border: 'none',
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Trash2 size={12} color="red" />
-        </button>
-      )}
+
+      <button 
+        onClick={() => onDeleteSlide()}
+        className={
+          clsx(
+            styles['delete-slide'],
+            {[styles['active']] : isActive || isHovered}
+          )}
+      >
+        <Trash2 className={styles['delete-slide-icon']}/>
+      </button>
     </div>
   );
 };

@@ -45,9 +45,19 @@ type Selection = {
   elementIds: string[];
 };
 
+// types.ts - добавим новые типы
+export type DragState = {
+  isDragging: boolean;
+  dragElementId: string | null;
+  startPosition: Position;
+  currentPosition: Position;
+  offset: Position;
+};
+
 export type Presentation = {
   id: string;
   title: string;
   slides: Slide[];
   selection: Selection;
+  dragState?: DragState; 
 };

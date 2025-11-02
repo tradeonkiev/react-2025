@@ -1,8 +1,8 @@
 import React from 'react';
-import type { Presentation, SlideElement } from './types';
-import { Header } from './components/Header/Header';
-import { SlidesList } from './components/SlidesList/SlidesList';
-import { Editor } from './components/Editor/Editor';
+import type { Presentation } from '../src/types';
+import { Header } from '../src/components/Header/Header';
+import { SlidesList } from '../src/components/SlidesList/SlidesList';
+import { Editor } from '../src/components/Editor/Editor';
 import { 
   dispatch, 
   updateTitle, 
@@ -14,8 +14,8 @@ import {
   deleteSelectedElements,
   cycleBackground,
   selectElement 
-} from './Store/editor';
-import { ToolBar } from './components/ToolBar/ToolBar';
+} from '../src/Store/editor';
+import { ToolBar } from '../src/components/ToolBar/ToolBar';
 
 interface AppProps {
   presentation: Presentation;
@@ -29,30 +29,30 @@ function App({ presentation }: AppProps) {
     dispatch(updateTitle, { title: e.target.value });
   };
 
-  const handleElementClick = (elementId: string, element: SlideElement) => {
+  const handleElementClick = (elementId: string) => {
     dispatch(selectElement, { elementId });
   };
 
-  const handleSlideClick = (slideId: string, index: number) => {
+  const handleSlideClick = (slideId: string) => {
     dispatch(selectSlide, { slideId });
   };
 
   const handleToolClick = (toolName: string) => {
     switch(toolName) {
-      case 'текста':
+      case 'text':
         dispatch(addTextElement, { slideId: currentSlideId });
         break;
-      case 'картинки':
+      case 'image':
         dispatch(addImageElement, { slideId: currentSlideId });
         break;
       case 'background':
         dispatch(cycleBackground, { slideId: currentSlideId });
         break;
-      case 'мусорка':
+      case 'trash':
         dispatch(deleteSelectedElements, { slideId: currentSlideId });
         break;
       default:
-        console.log(`Инструмент: ${toolName}`);
+        console.log(`tool: ${toolName}`);
     }
   };
 
@@ -60,7 +60,7 @@ function App({ presentation }: AppProps) {
     dispatch(addSlide);
   };
 
-  const handleDeleteSlide = (slideId: string, index: number) => {
+  const handleDeleteSlide = (slideId: string) => {
     dispatch(deleteSlide, { slideId });
   };
 

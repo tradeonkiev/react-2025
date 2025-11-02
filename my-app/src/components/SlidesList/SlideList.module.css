@@ -49,6 +49,14 @@
     outline: none !important;
 }
 
+.protective-film {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: inherit;
+    z-index: 100;
+}
+
 .page-number-text {
     flex: 1;
     padding-right: 32px;
@@ -110,6 +118,7 @@
 
 .add-slide{
     visibility: hidden;
+    opacity: 0;
     position: absolute;
     left: calc(50% - 18px);
     bottom: -10px;
@@ -126,22 +135,46 @@
     box-shadow: 0 0 5px 0 rgba(0, 0, 0, .25);
     transition: transform .3s ease, opacity .3s ease, visibility .3s ease;
     padding: 0;
-    transform: scale(1);
+    z-index: 100;
 }
 
 .add-slide.active {
     visibility: visible;
-}
-
-.add-slide:hover {
-  background: rgb(119, 39, 39);
-  transform: scale(1.05);
+    opacity: 1;
 }
 
 .add-slide-icon {
     height: 12px;
     width: 12px;
-    color: rgba(0, 0, 0, .6);
+    color: rgba(0, 0, 0, .4);
+}
+
+.delete-slide{
+    opacity: 0;
+    position: absolute;
+    cursor: pointer;
+    top: 4px;
+    right: 4px;
+    padding: 2px 5px; 
+    border-radius: 4px;
+    font-size: 14px;
+    border: none;
+    background: rgba(0, 0, 0, .6); 
+    transition: opacity .3s ease-in-out;
+    z-index: 100;
+}
+
+.delete-slide.active {
+    opacity: 0.4;
+}
+
+.delete-slide:hover {
+    opacity: 0.4;
+}
+.delete-slide-icon {
+    height: 12px;
+    width: 12px;
+    color: rgba(255, 255, 255, 1);
 }
 
 ::-webkit-scrollbar
