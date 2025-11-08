@@ -42,6 +42,12 @@ const SlidePreview = (
         slide={slide}
         width={264}
         height={148.5}
+        selectedElementIds={[]}
+        onElementClick={() => {}}
+        onDragStart={() => {}}
+        onDrag={() => {}}
+        onDragEnd={() => {}}
+        dragState={null}
       />
       
       <div className={styles['label']}>

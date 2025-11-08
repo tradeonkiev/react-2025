@@ -1,3 +1,4 @@
+import { slide1 } from '../data';
 import type { Presentation, Slide, TextElement, ImageElement, Background, DragState, Position} from '../types';
 import { changeSlideBackground } from '../utils';
 
@@ -10,6 +11,32 @@ export const updateTitle = (editor: Presentation, params: { title: string }): Pr
     title: params.title
   };
 };
+
+export const selectElement = (
+  editor: Presentation,
+  params: {
+    elementId: string
+  }
+): Presentation => {
+  return {
+    ...editor,
+    selection: {
+      ...editor.selection,
+      elementIds: [params.elementId]
+    }
+  }
+}
+
+
+export const deselectAll = (editor: Presentation): Presentation => {
+  return {
+    ...editor,
+    selection: {
+      slideIds: [],
+      elementIds: [],
+    }
+  }
+}
 
 export const addSlide = (editor: Presentation): Presentation => {
   const newSlide: Slide = {
@@ -29,7 +56,10 @@ export const addSlide = (editor: Presentation): Presentation => {
   };
 };
 
-export const deleteSlide = (editor: Presentation, params: { slideId: string }): Presentation => {
+export const deleteSlide = (
+  editor: Presentation, 
+  params: { slideId: string }
+): Presentation => {
   if (editor.slides.length <= 1) {
     return editor;
   }
@@ -47,7 +77,8 @@ export const deleteSlide = (editor: Presentation, params: { slideId: string }): 
   };
 };
 
-export const selectSlide = (editor: Presentation, params: { slideId: string }): Presentation => {
+export const selectSlide = (
+  editor: Presentation, params: { slideId: string }): Presentation => {
   return {
     ...editor,
     selection: {
@@ -57,6 +88,43 @@ export const selectSlide = (editor: Presentation, params: { slideId: string }): 
     }
   };
 };
+
+
+export const updateElementPosition = (
+  editor: Presentation,
+  params: {
+    slideId: string;
+    elementId: string;
+    position: Position;
+  }
+): Presentation => {
+  console.log(params)
+  const updatedSlides = editor.slides.map((slide) => {
+    console.log(slide.id, params.slideId, slide.id !== params.slideId)
+    if (slide.id !== params.slideId) return slide;
+
+    return {
+      ...slide,
+      elements: slide.elements.map((element) => {
+        console.log(element.id, params.elementId, element.id === params.elementId)
+        if (element.id === params.elementId) {
+          return {
+            ...element,
+            position: params.position,
+          };
+        }
+        return element;
+      }),
+    };
+  });
+
+  console.log(updatedSlides)
+  return {
+    ...editor,
+    slides: updatedSlides,
+  };
+};
+
 
 export const addTextElement = (editor: Presentation, params: { slideId: string }): Presentation => {
   const newTextElement: TextElement = {
@@ -177,15 +245,6 @@ export const cycleBackground = (editor: Presentation, params: { slideId: string 
   });
 };
 
-export const selectElement = (editor: Presentation, params: { elementId: string }): Presentation => {
-  return {
-    ...editor,
-    selection: {
-      ...editor.selection,
-      elementIds: [params.elementId]
-    }
-  };
-};
 
 export const dispatch = (modifier: Function, params?: any): void => {
   if (!editor) return;
@@ -212,80 +271,3 @@ export const getEditor = (): Presentation | null => {
 export const addEditorChangeHandler = (handler: () => void): void => {
   editorChangeHandler = handler;
 };
-
-// editor.ts - добавим функции для drag and drop
-export const startDrag = (editor: Presentation, params: { elementId: string; startPosition: Position }): Presentation => {
-  const element = editor.slides
-    .find(slide => slide.id === editor.selection.slideIds[0])
-    ?.elements.find(el => el.id === params.elementId);
-
-  if (!element) return editor;
-
-  return {
-    ...editor,
-    dragState: {
-      isDragging: true,
-      dragElementId: params.elementId,
-      startPosition: params.startPosition,
-      currentPosition: params.startPosition,
-      offset: {
-        x: params.startPosition.x - element.position.x,
-        y: params.startPosition.y - element.position.y
-      }
-    }
-  };
-};
-
-export const updateDrag = (editor: Presentation, params: { currentPosition: Position }): Presentation => {
-  if (!editor.dragState?.isDragging || !editor.dragState.dragElementId) {
-    return editor;
-  }
-
-  return {
-    ...editor,
-    dragState: {
-      ...editor.dragState,
-      currentPosition: params.currentPosition
-    }
-  };
-};
-
-export const endDrag = (editor: Presentation): Presentation => {
-  if (!editor.dragState?.isDragging || !editor.dragState.dragElementId) {
-    return editor;
-  }
-
-  const { dragElementId, currentPosition, offset } = editor.dragState;
-  
-  const newPosition = {
-    x: currentPosition.x - offset.x,
-    y: currentPosition.y - offset.y
-  };
-
-  const updatedSlides = editor.slides.map(slide => {
-    if (slide.id === editor.selection.slideIds[0]) {
-      return {
-        ...slide,
-        elements: slide.elements.map(element => {
-          if (element.id === dragElementId) {
-            return {
-              ...element,
-              position: newPosition
-            };
-          }
-          return element;
-        })
-      };
-    }
-    return slide;
-  });
-
-  return {
-    ...editor,
-    slides: updatedSlides,
-    dragState: undefined
-  };
-};
-
-
-//TODO: переделать изменение названия на выход с окна 

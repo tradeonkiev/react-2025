@@ -3,6 +3,7 @@ import type { Presentation } from '../src/types';
 import { Header } from '../src/components/Header/Header';
 import { SlidesList } from '../src/components/SlidesList/SlidesList';
 import { Editor } from '../src/components/Editor/Editor';
+import type { Position } from '../src/types';
 import { 
   dispatch, 
   updateTitle, 
@@ -13,7 +14,9 @@ import {
   addImageElement, 
   deleteSelectedElements,
   cycleBackground,
-  selectElement 
+  selectElement,
+  deselectAll,
+  updateElementPosition
 } from '../src/Store/editor';
 import { ToolBar } from '../src/components/ToolBar/ToolBar';
 
@@ -37,6 +40,14 @@ function App({ presentation }: AppProps) {
     dispatch(selectSlide, { slideId });
   };
 
+  const handleDeselectAll  = () => {
+    dispatch(deselectAll)
+  }
+
+  const handleUpdateElementPosition = (elementId: string, position: Position) => {
+    dispatch(updateElementPosition, {slideId: currentSlideId, elementId, position})
+  }
+
   const handleToolClick = (toolName: string) => {
     switch(toolName) {
       case 'text':
@@ -56,6 +67,7 @@ function App({ presentation }: AppProps) {
     }
   };
 
+  
   const handleAddSlide = () => {
     dispatch(addSlide);
   };
@@ -100,6 +112,8 @@ function App({ presentation }: AppProps) {
           width={1280}
           height={720}
           selectedElementIds={presentation.selection.elementIds}
+          onUpdateElementPosition={handleUpdateElementPosition}
+          onDeselectAll={handleDeselectAll}
         />
         <ToolBar
           onToolClick={handleToolClick}
