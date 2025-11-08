@@ -55,7 +55,7 @@ export function addSlide(
 
 export function changeSlideBackground(
   presentation: Presentation,
-  params: { slideId: string; background: Background }  // ← все параметры в одном объекте
+  params: { slideId: string; background: Background }  
 ): Presentation {
   const { slideId, background } = params;
   

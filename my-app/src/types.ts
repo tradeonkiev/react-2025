@@ -13,6 +13,7 @@ type BaseElement = {
   position: Position;
   size: Size;
 };
+
 export type TextElement = BaseElement & {
   type: 'text';
   content: string;
@@ -50,13 +51,25 @@ export type Presentation = {
   title: string;
   slides: Slide[];
   selection: Selection;
-  dragState?: DragState; 
 };
 
 export type DragState = {
-  elementId: string;          // ID перетаскиваемого элемента
-  startX: number;             // Начальная позиция мыши X
-  startY: number;             // Начальная позиция мыши Y
-  initialElementX: number;    // Начальная позиция элемента X
-  initialElementY: number;    // Начальная позиция элемента Y
+  elementId: string;
+  startX: number;
+  startY: number;
+  initialElementX: number;
+  initialElementY: number;
+};
+
+export type ResizeHandle = 'nw' | 'ne' | 'sw' | 'se' | 'n' | 's' | 'w' | 'e';
+
+export type ResizeState = {
+  elementId: string;
+  handle: ResizeHandle;
+  startX: number;
+  startY: number;
+  startWidth: number;
+  startHeight: number;
+  startPosX: number;
+  startPosY: number;
 };

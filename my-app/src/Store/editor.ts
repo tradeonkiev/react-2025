@@ -1,5 +1,4 @@
-import { slide1 } from '../data';
-import type { Presentation, Slide, TextElement, ImageElement, Background, DragState, Position} from '../types';
+import type { Presentation, Slide, Size, TextElement, ImageElement, Background, Position} from '../types';
 import { changeSlideBackground } from '../utils';
 
 let editor: Presentation | null = null;
@@ -98,15 +97,12 @@ export const updateElementPosition = (
     position: Position;
   }
 ): Presentation => {
-  console.log(params)
   const updatedSlides = editor.slides.map((slide) => {
-    console.log(slide.id, params.slideId, slide.id !== params.slideId)
     if (slide.id !== params.slideId) return slide;
 
     return {
       ...slide,
       elements: slide.elements.map((element) => {
-        console.log(element.id, params.elementId, element.id === params.elementId)
         if (element.id === params.elementId) {
           return {
             ...element,
@@ -118,7 +114,6 @@ export const updateElementPosition = (
     };
   });
 
-  console.log(updatedSlides)
   return {
     ...editor,
     slides: updatedSlides,
@@ -250,8 +245,8 @@ export const dispatch = (modifier: Function, params?: any): void => {
   if (!editor) return;
 
   const newEditor = modifier(editor, params);
-  console.log('Old state:', editor);
-  console.log('New state:', newEditor);
+  // console.log('Old state:', editor);
+  // console.log('New state:', newEditor);
   editor = newEditor;
 
   if (editorChangeHandler) {
@@ -270,4 +265,37 @@ export const getEditor = (): Presentation | null => {
 
 export const addEditorChangeHandler = (handler: () => void): void => {
   editorChangeHandler = handler;
+};
+
+export const updateElementSize = (
+  editor: Presentation,
+  params: {
+    slideId: string;
+    elementId: string;
+    size: Size;
+    position: Position;
+  }
+): Presentation => {
+  const updatedSlides = editor.slides.map((slide) => {
+    if (slide.id !== params.slideId) return slide;
+
+    return {
+      ...slide,
+      elements: slide.elements.map((element) => {
+        if (element.id === params.elementId) {
+          return {
+            ...element,
+            size: params.size,
+            position: params.position,
+          };
+        }
+        return element;
+      }),
+    };
+  });
+
+  return {
+    ...editor,
+    slides: updatedSlides,
+  };
 };

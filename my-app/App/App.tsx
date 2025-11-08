@@ -1,9 +1,8 @@
 import React from 'react';
-import type { Presentation } from '../src/types';
+import type { Presentation, Position, Size } from '../src/types';
 import { Header } from '../src/components/Header/Header';
 import { SlidesList } from '../src/components/SlidesList/SlidesList';
 import { Editor } from '../src/components/Editor/Editor';
-import type { Position } from '../src/types';
 import { 
   dispatch, 
   updateTitle, 
@@ -16,7 +15,8 @@ import {
   cycleBackground,
   selectElement,
   deselectAll,
-  updateElementPosition
+  updateElementPosition,
+  updateElementSize 
 } from '../src/Store/editor';
 import { ToolBar } from '../src/components/ToolBar/ToolBar';
 
@@ -40,12 +40,16 @@ function App({ presentation }: AppProps) {
     dispatch(selectSlide, { slideId });
   };
 
-  const handleDeselectAll  = () => {
+  const handleDeselectAll = () => {
     dispatch(deselectAll)
   }
 
   const handleUpdateElementPosition = (elementId: string, position: Position) => {
     dispatch(updateElementPosition, {slideId: currentSlideId, elementId, position})
+  }
+
+  const handleUpdateElementSize = (elementId: string, size: Size, position: Position) => {
+    dispatch(updateElementSize, {slideId: currentSlideId, elementId, size, position})
   }
 
   const handleToolClick = (toolName: string) => {
@@ -67,7 +71,6 @@ function App({ presentation }: AppProps) {
     }
   };
 
-  
   const handleAddSlide = () => {
     dispatch(addSlide);
   };
@@ -113,6 +116,7 @@ function App({ presentation }: AppProps) {
           height={720}
           selectedElementIds={presentation.selection.elementIds}
           onUpdateElementPosition={handleUpdateElementPosition}
+          onUpdateElementSize={handleUpdateElementSize}
           onDeselectAll={handleDeselectAll}
         />
         <ToolBar

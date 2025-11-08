@@ -45,8 +45,10 @@ const SlidePreview = (
         selectedElementIds={[]}
         onElementClick={() => {}}
         onDragStart={() => {}}
-        onDrag={() => {}}
         onDragEnd={() => {}}
+        onResizeEnd={() => {}}
+        onResizeStart={() => {}}
+        resizeState={null}
         dragState={null}
       />
       
