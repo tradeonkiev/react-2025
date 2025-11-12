@@ -16,7 +16,8 @@ import {
   selectElement,
   deselectAll,
   updateElementPosition,
-  updateElementSize 
+  updateElementSize,
+  reorderSlides
 } from '../src/Store/editor';
 import { ToolBar } from '../src/components/ToolBar/ToolBar';
 
@@ -83,6 +84,10 @@ function App({ presentation }: AppProps) {
     console.log(`Действие: ${action}`);
   };
 
+  const handleReorderSlides = (fromIndex: number, toIndex: number) => {
+    dispatch(reorderSlides, { fromIndex, toIndex });
+  };
+
   return (
     <div style={{ 
       display: 'flex',
@@ -107,6 +112,7 @@ function App({ presentation }: AppProps) {
           onSlideClick={handleSlideClick}
           onAddSlide={handleAddSlide}
           onDeleteSlide={handleDeleteSlide}
+          onReorderSlides={handleReorderSlides}
         />
         
         <Editor 

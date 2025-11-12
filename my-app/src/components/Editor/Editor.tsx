@@ -1,7 +1,8 @@
 import React from 'react';
-import type { Slide, SlideElement, Position, Size, DragState, ResizeState, ResizeHandle } from '../../types';
+import type { Slide, SlideElement, Position, Size } from '../../types';
 import { Viewport } from '../Canvas/Viewport';
-import styles from './Editor.module.css'
+import { useDragAndDrop } from '../../hooks/useDrugAndDrop';
+import styles from './Editor.module.css';
 
 interface EditorProps {
   slide: Slide;
@@ -24,126 +25,44 @@ export const Editor = ({
   onUpdateElementSize,
   onDeselectAll
 }: EditorProps) => {
-  const [dragState, setDragState] = React.useState<DragState | null>(null);
-  const [resizeState, setResizeState] = React.useState<ResizeState | null>(null);
   const canvasScale = Math.min(width / slide.size.width, height / slide.size.height);
 
-  const handleDragStart = (e: React.MouseEvent, elementId: string) => {
-    if (resizeState) return;
-    
+  const {
+    dragState,
+    resizeState,
+    handleDragStart,
+    handleDragEnd,
+    handleResizeStart,
+    handleResizeEnd,
+    handleMouseMove
+  } = useDragAndDrop({
+    canvasScale,
+    slideWidth: slide.size.width,
+    slideHeight: slide.size.height,
+    onUpdatePosition: onUpdateElementPosition,
+    onUpdateSize: onUpdateElementSize
+  });
+
+  const handleElementDragStart = React.useCallback((
+    e: React.MouseEvent,
+    elementId: string
+  ) => {
     const element = slide.elements.find(el => el.id === elementId);
     if (!element) return;
 
-    setDragState({
-      elementId,
-      startX: e.clientX,
-      startY: e.clientY,
-      initialElementX: element.position.x,
-      initialElementY: element.position.y
-    });
-  };
+    handleDragStart(e, elementId, element.position);
+  }, [slide.elements, handleDragStart]);
 
-  const handleDrag = (e: React.MouseEvent) => {
-    if (!dragState || resizeState) return;
-
-    const deltaX = (e.clientX - dragState.startX) / canvasScale;
-    const deltaY = (e.clientY - dragState.startY) / canvasScale;
-
-    const newX = Math.max(0, Math.min(slide.size.width, dragState.initialElementX + deltaX));
-    const newY = Math.max(0, Math.min(slide.size.height, dragState.initialElementY + deltaY));
-
-    onUpdateElementPosition(dragState.elementId, { x: newX, y: newY });
-  };
-
-  const handleDragEnd = () => {
-    setDragState(null);
-  };
-
-  const handleResizeStart = (e: React.MouseEvent, elementId: string, handle: ResizeHandle) => {
+  const handleElementResizeStart = React.useCallback((
+    e: React.MouseEvent,
+    elementId: string,
+    handle: any
+  ) => {
     const element = slide.elements.find(el => el.id === elementId);
     if (!element) return;
 
-    setResizeState({
-      elementId,
-      handle,
-      startX: e.clientX,
-      startY: e.clientY,
-      startWidth: element.size.width,
-      startHeight: element.size.height,
-      startPosX: element.position.x,
-      startPosY: element.position.y
-    });
-  };
-
-  const handleResize = (e: React.MouseEvent) => {
-    if (!resizeState) return;
-
-    const deltaX = (e.clientX - resizeState.startX) / canvasScale;
-    const deltaY = (e.clientY - resizeState.startY) / canvasScale;
-
-    let newWidth = resizeState.startWidth;
-    let newHeight = resizeState.startHeight;
-    let newX = resizeState.startPosX;
-    let newY = resizeState.startPosY;
-
-    const minSize = 60;
-    // const realDelta = Math.max(deltaX, deltaY);
-    // const ratioSize = resizeState.startWidth / resizeState.startHeight;
-
-    switch (resizeState.handle) {
-      case 'nw':
-        newWidth = Math.max(minSize, resizeState.startWidth - deltaX);
-        newHeight = Math.max(minSize, resizeState.startHeight - deltaY);
-        newX = resizeState.startPosX + (resizeState.startWidth - newWidth);
-        newY = resizeState.startPosY + (resizeState.startHeight - newHeight);
-        break;
-      
-      case 'ne':
-        newWidth = Math.max(minSize, resizeState.startWidth + deltaX);
-        newHeight = Math.max(minSize, resizeState.startHeight - deltaY);
-        newY = resizeState.startPosY + (resizeState.startHeight - newHeight);
-        break;
-      
-      case 'sw':
-        newWidth = Math.max(minSize, resizeState.startWidth - deltaX);
-        newHeight = Math.max(minSize, resizeState.startHeight + deltaY);
-        newX = resizeState.startPosX + (resizeState.startWidth - newWidth);
-        break;
-      
-      case 'se': 
-        newWidth = Math.max(minSize, resizeState.startWidth + deltaX);
-        newHeight = Math.max(minSize, resizeState.startHeight + deltaY);
-        break;
-      
-      case 'n':
-        newHeight = Math.max(minSize, resizeState.startHeight - deltaY);
-        newY = resizeState.startPosY + (resizeState.startHeight - newHeight);
-        break;
-        
-      case 's': 
-        newHeight = Math.max(minSize, resizeState.startHeight + deltaY);
-        break;
-
-      case 'w': 
-        newWidth = Math.max(minSize, resizeState.startWidth - deltaX);
-        newX = resizeState.startPosX + (resizeState.startWidth - newWidth);
-        break
-
-      case 'e': 
-        newWidth = Math.max(minSize, resizeState.startWidth + deltaX);
-        break
-    }
-
-    onUpdateElementSize(
-      resizeState.elementId,
-      { width: newWidth, height: newHeight },
-      { x: newX, y: newY }
-    );
-  };
-
-  const handleResizeEnd = () => {
-    setResizeState(null);
-  };
+    handleResizeStart(e, elementId, handle, element.size, element.position);
+  }, [slide.elements, handleResizeStart]);
 
   const handleEditorClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -154,10 +73,7 @@ export const Editor = ({
   return (
     <div
       onClick={handleEditorClick}
-      onMouseMove={(e) => {
-        handleDrag(e);
-        handleResize(e);
-      }}
+      onMouseMove={handleMouseMove}
       className={styles['editor-container']}
       style={{
         cursor: resizeState ? 'default' : dragState ? 'grabbing' : 'default'
@@ -170,10 +86,10 @@ export const Editor = ({
           height={height}
           selectedElementIds={selectedElementIds}
           onElementClick={onElementClick}
-          onDragStart={handleDragStart}
+          onDragStart={handleElementDragStart}
           onDragEnd={handleDragEnd}
           dragState={dragState}
-          onResizeStart={handleResizeStart}
+          onResizeStart={handleElementResizeStart}
           onResizeEnd={handleResizeEnd}
           resizeState={resizeState}
         />

@@ -26,6 +26,53 @@ export const selectElement = (
   }
 }
 
+export const reorderSlides = (
+  editor: Presentation,
+  params: { fromIndex: number; toIndex: number }
+): Presentation => {
+  const { fromIndex, toIndex } = params;
+  
+  const newSlides = [...editor.slides];
+  const [movedSlide] = newSlides.splice(fromIndex, 1);
+  newSlides.splice(toIndex, 0, movedSlide);
+
+  const currentSlideId = editor.selection.slideIds[0];
+  const currentSlideIndex = editor.slides.findIndex(s => s.id === currentSlideId);
+  
+  let newSelectedSlideId = currentSlideId;
+  
+  if (currentSlideIndex === fromIndex) {
+    newSelectedSlideId = newSlides[toIndex].id;
+  } else if (fromIndex < currentSlideIndex && toIndex >= currentSlideIndex) {
+    const newCurrentIndex = currentSlideIndex - 1;
+    newSelectedSlideId = newSlides[newCurrentIndex].id;
+  } else if (fromIndex > currentSlideIndex && toIndex <= currentSlideIndex) {
+    const newCurrentIndex = currentSlideIndex + 1;
+    newSelectedSlideId = newSlides[newCurrentIndex].id;
+  }
+
+  return {
+    ...editor,
+    slides: newSlides,
+    selection: {
+      ...editor.selection,
+      slideIds: [newSelectedSlideId]
+    }
+  };
+};
+
+export const selectMultipleElements = (
+  editor: Presentation,
+  params: { elementIds: string[] }
+): Presentation => {
+  return {
+    ...editor,
+    selection: {
+      ...editor.selection,
+      elementIds: params.elementIds
+    }
+  };
+};
 
 export const deselectAll = (editor: Presentation): Presentation => {
   return {
@@ -88,7 +135,6 @@ export const selectSlide = (
   };
 };
 
-
 export const updateElementPosition = (
   editor: Presentation,
   params: {
@@ -119,7 +165,6 @@ export const updateElementPosition = (
     slides: updatedSlides,
   };
 };
-
 
 export const addTextElement = (editor: Presentation, params: { slideId: string }): Presentation => {
   const newTextElement: TextElement = {
@@ -232,7 +277,6 @@ export const cycleBackground = (editor: Presentation, params: { slideId: string 
   ];
 
   const newBackground = backgrounds[Math.ceil(Math.random() * (backgrounds.length - 1))];
-  console.log(newBackground);
 
   return changeSlideBackground(editor, { 
     slideId: params.slideId, 
@@ -240,13 +284,10 @@ export const cycleBackground = (editor: Presentation, params: { slideId: string 
   });
 };
 
-
 export const dispatch = (modifier: Function, params?: any): void => {
   if (!editor) return;
 
   const newEditor = modifier(editor, params);
-  // console.log('Old state:', editor);
-  // console.log('New state:', newEditor);
   editor = newEditor;
 
   if (editorChangeHandler) {

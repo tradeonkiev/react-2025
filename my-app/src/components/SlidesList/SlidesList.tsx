@@ -3,6 +3,7 @@ import React from 'react';
 import { Grid, Plus, Trash2 } from "lucide-react";
 import type { Slide } from '../../types';
 import { Viewport } from '../Canvas/Viewport';
+import { useSlideDragDrop } from '../../hooks/useSlideAndDrop';
 import styles from './SlideList.module.css';
 
 interface SlidesListProps {
@@ -11,31 +12,53 @@ interface SlidesListProps {
   onSlideClick: (slideId: string, index: number) => void;
   onAddSlide: () => void;
   onDeleteSlide: (slideId: string, index: number) => void;
+  onReorderSlides: (fromIndex: number, toIndex: number) => void;
 }
 
-const SlidePreview = ( 
-  { slide, index, isActive, onClick, onAddSlide, onDeleteSlide }: 
-  {
-    slide: Slide;
-    index: number;
-    isActive: boolean;
-    onClick: () => void;
-    onAddSlide: () => void;
-    onDeleteSlide: () => void;
-  }
-) => {
+const SlidePreview = ({ 
+  slide, 
+  index, 
+  isActive, 
+  onClick, 
+  onAddSlide, 
+  onDeleteSlide,
+  dragHandlers,
+  isDragging,
+  isDropTarget
+}: {
+  slide: Slide;
+  index: number;
+  isActive: boolean;
+  onClick: () => void;
+  onAddSlide: () => void;
+  onDeleteSlide: () => void;
+  dragHandlers: {
+    onDragStart: (e: React.DragEvent) => void;
+    onDragOver: (e: React.DragEvent) => void;
+    onDrop: (e: React.DragEvent) => void;
+    onDragEnd: () => void;
+    onDragLeave: (e: React.DragEvent) => void;
+  };
+  isDragging: boolean;
+  isDropTarget: boolean;
+}) => {
   const [isHovered, setIsHovered] = React.useState(false);
 
   return (
     <div
+      draggable
+      {...dragHandlers}
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={
-        clsx(
-          styles['thumbnail-slide'],
-          {[styles['active']] : isActive}
-        )}
+      className={clsx(
+        styles['thumbnail-slide'],
+        { 
+          [styles['active']]: isActive,
+          [styles['dragging']]: isDragging,
+          [styles['drop-target']]: isDropTarget
+        }
+      )}
     >
       <div className={styles['protective-film']}></div>
       <Viewport 
@@ -57,22 +80,27 @@ const SlidePreview = (
       </div>
       
       <button 
-        onClick={() => onAddSlide()}
-        className={
-          clsx(
-            styles['add-slide'],
-            {[styles['active']] : isHovered}
-      )}>
+        onClick={(e) => {
+          e.stopPropagation();
+          onAddSlide();
+        }}
+        className={clsx(
+          styles['add-slide'],
+          { [styles['active']]: isHovered }
+        )}
+      >
         <Plus className={styles['add-slide-icon']}/>
       </button>
 
       <button 
-        onClick={() => onDeleteSlide()}
-        className={
-          clsx(
-            styles['delete-slide'],
-            {[styles['active']] : isActive || isHovered}
-          )}
+        onClick={(e) => {
+          e.stopPropagation();
+          onDeleteSlide();
+        }}
+        className={clsx(
+          styles['delete-slide'],
+          { [styles['active']]: isActive || isHovered }
+        )}
       >
         <Trash2 className={styles['delete-slide-icon']}/>
       </button>
@@ -80,15 +108,16 @@ const SlidePreview = (
   );
 };
 
-export const SlidesList = (
-  { 
-    slides, 
-    currentSlideIndex, 
-    onSlideClick,
-    onAddSlide,
-    onDeleteSlide
-  } : SlidesListProps
-) => {
+export const SlidesList = ({
+  slides, 
+  currentSlideIndex, 
+  onSlideClick,
+  onAddSlide,
+  onDeleteSlide,
+  onReorderSlides
+}: SlidesListProps) => {
+  const dragDrop = useSlideDragDrop(onReorderSlides);
+
   return (
     <div className={styles['thumbnail-wrapper']}>
       <div className={styles['page-number']}>
@@ -99,6 +128,7 @@ export const SlidesList = (
           {currentSlideIndex + 1} / {slides.length}
         </div>
       </div>
+      
       <div className={styles['thumbnail-list']}>
         {slides.map((slide, index) => (
           <SlidePreview
@@ -109,6 +139,15 @@ export const SlidesList = (
             onClick={() => onSlideClick(slide.id, index)}
             onAddSlide={onAddSlide}
             onDeleteSlide={() => onDeleteSlide(slide.id, index)}
+            dragHandlers={{
+              onDragStart: (e) => dragDrop.handleDragStart(e, index),
+              onDragOver: (e) => dragDrop.handleDragOver(e, index),
+              onDrop: (e) => dragDrop.handleDrop(e, index),
+              onDragEnd: dragDrop.handleDragEnd,
+              onDragLeave: dragDrop.handleDragLeave,
+            }}
+            isDragging={dragDrop.isDragging(index)}
+            isDropTarget={dragDrop.isDropTarget(index)}
           />
         ))}
       </div>
