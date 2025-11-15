@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Slide, SlideElement, Position, Size } from '../../types';
+import type { Slide, Position, Size } from '../../types';
 import { Viewport } from '../Canvas/Viewport';
 import { useDragAndDrop } from '../../hooks/useDragAndDrop';
 import styles from './Editor.module.css';

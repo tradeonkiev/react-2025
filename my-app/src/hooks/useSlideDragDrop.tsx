@@ -13,17 +13,14 @@ export function useSlideDragDrop(
   const handleDragStart = useCallback((e: React.DragEvent, index: number) => {
     const slideId = slides[index].id;
     
-    // Определяем, какие слайды нужно перетаскивать
     let indicesToDrag: number[];
     
     if (selectedSlideIds.length > 1 && selectedSlideIds.includes(slideId)) {
-      // Перетаскиваем группу выбранных слайдов
       indicesToDrag = selectedSlideIds
         .map(id => slides.findIndex(s => s.id === id))
         .filter(idx => idx !== -1)
         .sort((a, b) => a - b);
     } else {
-      // Перетаскиваем один слайд
       indicesToDrag = [index];
     }
     

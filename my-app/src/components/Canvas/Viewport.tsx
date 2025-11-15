@@ -1,6 +1,6 @@
 import { ElementComponent } from "./ElementComponent"
 import { getBackgroundStyle } from "../../utils"
-import type { Slide, SlideElement, DragState, ResizeState, ResizeHandle, GroupDragState } from "../../types"
+import type { Slide, DragState, ResizeState, ResizeHandle, GroupDragState } from "../../types"
 import styles from './Viewport.module.css'
 
 interface ViewportProps {

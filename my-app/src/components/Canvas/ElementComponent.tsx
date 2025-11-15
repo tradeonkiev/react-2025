@@ -52,7 +52,7 @@ export const ElementComponent = ({
         boxShadow: isSelected || isDragging
           ? '0 0 0 2px #1783FF' 
           : 'none',
-        zIndex: isDragging || isResizing ? 1000 : 1
+        zIndex: isDragging || isResizing || isSelected ? 1000 : 1
       }}
     >
       {element.type === 'text' ? (
