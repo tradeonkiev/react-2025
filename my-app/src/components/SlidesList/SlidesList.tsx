@@ -63,9 +63,6 @@ const SlidePreview = ({
           [styles['drop-target']]: isDropTarget
         }
       )}
-      style={{
-        opacity: isDragging ? 0.5 : 1
-      }}
     >
       <div className={styles['protective-film']}></div>
       <Viewport 

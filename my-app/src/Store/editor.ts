@@ -18,7 +18,7 @@ export const selectElement = (
     addToSelection?: boolean;
   }
 ): Presentation => {
-  if (params.addToSelection) {
+  if (params.addToSelection) { 
     const elementIds = editor.selection.elementIds.includes(params.elementId)
       ? editor.selection.elementIds.filter(id => id !== params.elementId)
       : [...editor.selection.elementIds, params.elementId];

@@ -109,11 +109,20 @@
 }
 
 .thumbnail-slide:hover{
-  outline: 2px solid rgba(0, 0, 0, .13);
+    outline: 2px solid rgba(0, 0, 0, .13);
 }
 
 .thumbnail-slide.active {
-  outline: 2px solid #1783FF;
+    outline: 2px solid #1783FF;
+}
+
+.thumbnail-slide.drop-target {
+    outline: 2px solid #01a955;
+}
+
+.thumbnail-slide.dragging {
+    outline: 2px solid #1783FF;
+    opacity: 0.5
 }
 
 .add-slide{

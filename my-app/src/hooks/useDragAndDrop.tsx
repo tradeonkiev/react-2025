@@ -37,9 +37,7 @@ export const useDragAndDrop = ({
   ) => {
     if (isResizingRef.current) return;
     
-    // Проверяем, является ли элемент частью группы
     if (selectedElementIds.length > 1 && selectedElementIds.includes(elementId)) {
-      // Групповое перемещение
       isGroupDraggingRef.current = true;
       
       const initialPositions = new Map<string, Position>();
@@ -57,7 +55,6 @@ export const useDragAndDrop = ({
         initialPositions
       });
     } else {
-      // Одиночное перемещение
       isDraggingRef.current = true;
       setDragState({
         elementId,
