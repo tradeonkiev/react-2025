@@ -17,6 +17,7 @@ import {
   deselectAll,
   updateElementPosition,
   updateElementSize,
+  updateGroupPositions,
   reorderSlides
 } from '../src/Store/editor';
 import { ToolBar } from '../src/components/ToolBar/ToolBar';
@@ -33,25 +34,29 @@ function App({ presentation }: AppProps) {
     dispatch(updateTitle, { title: e.target.value });
   };
 
-  const handleElementClick = (elementId: string) => {
-    dispatch(selectElement, { elementId });
+  const handleElementClick = (elementId: string, ctrlKey: boolean) => {
+    dispatch(selectElement, { elementId, addToSelection: ctrlKey });
   };
 
-  const handleSlideClick = (slideId: string) => {
-    dispatch(selectSlide, { slideId });
+  const handleSlideClick = (slideId: string, index: number, ctrlKey: boolean) => {
+    dispatch(selectSlide, { slideId, addToSelection: ctrlKey });
   };
 
   const handleDeselectAll = () => {
-    dispatch(deselectAll)
-  }
+    dispatch(deselectAll);
+  };
 
   const handleUpdateElementPosition = (elementId: string, position: Position) => {
-    dispatch(updateElementPosition, {slideId: currentSlideId, elementId, position})
-  }
+    dispatch(updateElementPosition, { slideId: currentSlideId, elementId, position });
+  };
 
   const handleUpdateElementSize = (elementId: string, size: Size, position: Position) => {
-    dispatch(updateElementSize, {slideId: currentSlideId, elementId, size, position})
-  }
+    dispatch(updateElementSize, { slideId: currentSlideId, elementId, size, position });
+  };
+
+  const handleUpdateGroupPositions = (updates: Array<{ elementId: string; position: Position }>) => {
+    dispatch(updateGroupPositions, { slideId: currentSlideId, updates });
+  };
 
   const handleToolClick = (toolName: string) => {
     switch(toolName) {
@@ -84,8 +89,8 @@ function App({ presentation }: AppProps) {
     console.log(`Действие: ${action}`);
   };
 
-  const handleReorderSlides = (fromIndex: number, toIndex: number) => {
-    dispatch(reorderSlides, { fromIndex, toIndex });
+  const handleReorderSlides = (fromIndices: number[], toIndex: number) => {
+    dispatch(reorderSlides, { fromIndices, toIndex });
   };
 
   return (
@@ -108,7 +113,7 @@ function App({ presentation }: AppProps) {
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         <SlidesList 
           slides={presentation.slides}
-          currentSlideIndex={presentation.slides.findIndex(slide => slide.id === currentSlideId)}
+          selectedSlideIds={presentation.selection.slideIds}
           onSlideClick={handleSlideClick}
           onAddSlide={handleAddSlide}
           onDeleteSlide={handleDeleteSlide}
@@ -123,6 +128,7 @@ function App({ presentation }: AppProps) {
           selectedElementIds={presentation.selection.elementIds}
           onUpdateElementPosition={handleUpdateElementPosition}
           onUpdateElementSize={handleUpdateElementSize}
+          onUpdateGroupPositions={handleUpdateGroupPositions}
           onDeselectAll={handleDeselectAll}
         />
         <ToolBar

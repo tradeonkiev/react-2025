@@ -1,17 +1,18 @@
 import React from 'react';
 import type { Slide, SlideElement, Position, Size } from '../../types';
 import { Viewport } from '../Canvas/Viewport';
-import { useDragAndDrop } from '../../hooks/useDrugAndDrop';
+import { useDragAndDrop } from '../../hooks/useDragAndDrop';
 import styles from './Editor.module.css';
 
 interface EditorProps {
   slide: Slide;
-  onElementClick: (elementId: string, element: SlideElement) => void;
+  onElementClick: (elementId: string, ctrlKey: boolean) => void;
   width: number;
   height: number;
   selectedElementIds?: string[];
   onUpdateElementPosition: (elementId: string, position: Position) => void;
   onUpdateElementSize: (elementId: string, size: Size, position: Position) => void;
+  onUpdateGroupPositions: (updates: Array<{ elementId: string; position: Position }>) => void;
   onDeselectAll: () => void;
 }
 
@@ -20,15 +21,17 @@ export const Editor = ({
   onElementClick,
   width,
   height,
-  selectedElementIds,
+  selectedElementIds = [],
   onUpdateElementPosition,
   onUpdateElementSize,
+  onUpdateGroupPositions,
   onDeselectAll
 }: EditorProps) => {
   const canvasScale = Math.min(width / slide.size.width, height / slide.size.height);
 
   const {
     dragState,
+    groupDragState,
     resizeState,
     handleDragStart,
     handleDragEnd,
@@ -39,8 +42,11 @@ export const Editor = ({
     canvasScale,
     slideWidth: slide.size.width,
     slideHeight: slide.size.height,
+    selectedElementIds,
+    elements: slide.elements,
     onUpdatePosition: onUpdateElementPosition,
-    onUpdateSize: onUpdateElementSize
+    onUpdateSize: onUpdateElementSize,
+    onUpdateGroupPositions
   });
 
   const handleElementDragStart = React.useCallback((
@@ -76,7 +82,7 @@ export const Editor = ({
       onMouseMove={handleMouseMove}
       className={styles['editor-container']}
       style={{
-        cursor: resizeState ? 'default' : dragState ? 'grabbing' : 'default'
+        cursor: resizeState ? 'default' : (dragState || groupDragState) ? 'grabbing' : 'default'
       }}
     >
       <div className={styles['wrapper']}>
@@ -89,6 +95,7 @@ export const Editor = ({
           onDragStart={handleElementDragStart}
           onDragEnd={handleDragEnd}
           dragState={dragState}
+          groupDragState={groupDragState}
           onResizeStart={handleElementResizeStart}
           onResizeEnd={handleResizeEnd}
           resizeState={resizeState}

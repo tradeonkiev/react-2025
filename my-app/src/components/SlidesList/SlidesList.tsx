@@ -3,16 +3,16 @@ import React from 'react';
 import { Grid, Plus, Trash2 } from "lucide-react";
 import type { Slide } from '../../types';
 import { Viewport } from '../Canvas/Viewport';
-import { useSlideDragDrop } from '../../hooks/useSlideAndDrop';
+import { useSlideDragDrop } from '../../hooks/useSlideDragDrop';
 import styles from './SlideList.module.css';
 
 interface SlidesListProps {
   slides: Slide[];
-  currentSlideIndex: number;
-  onSlideClick: (slideId: string, index: number) => void;
+  selectedSlideIds: string[];
+  onSlideClick: (slideId: string, index: number, ctrlKey: boolean) => void;
   onAddSlide: () => void;
   onDeleteSlide: (slideId: string, index: number) => void;
-  onReorderSlides: (fromIndex: number, toIndex: number) => void;
+  onReorderSlides: (fromIndices: number[], toIndex: number) => void;
 }
 
 const SlidePreview = ({ 
@@ -29,7 +29,7 @@ const SlidePreview = ({
   slide: Slide;
   index: number;
   isActive: boolean;
-  onClick: () => void;
+  onClick: (ctrlKey: boolean) => void;
   onAddSlide: () => void;
   onDeleteSlide: () => void;
   dragHandlers: {
@@ -44,11 +44,15 @@ const SlidePreview = ({
 }) => {
   const [isHovered, setIsHovered] = React.useState(false);
 
+  const handleClick = (e: React.MouseEvent) => {
+    onClick(e.ctrlKey || e.metaKey);
+  };
+
   return (
     <div
       draggable
       {...dragHandlers}
-      onClick={onClick}
+      onClick={handleClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={clsx(
@@ -59,6 +63,9 @@ const SlidePreview = ({
           [styles['drop-target']]: isDropTarget
         }
       )}
+      style={{
+        opacity: isDragging ? 0.5 : 1
+      }}
     >
       <div className={styles['protective-film']}></div>
       <Viewport 
@@ -110,13 +117,15 @@ const SlidePreview = ({
 
 export const SlidesList = ({
   slides, 
-  currentSlideIndex, 
+  selectedSlideIds, 
   onSlideClick,
   onAddSlide,
   onDeleteSlide,
   onReorderSlides
 }: SlidesListProps) => {
-  const dragDrop = useSlideDragDrop(onReorderSlides);
+  const dragDrop = useSlideDragDrop(selectedSlideIds, slides, onReorderSlides);
+
+  const currentSlideIndex = slides.findIndex(s => selectedSlideIds.includes(s.id));
 
   return (
     <div className={styles['thumbnail-wrapper']}>
@@ -125,7 +134,10 @@ export const SlidesList = ({
           <Grid strokeWidth={1} />
         </div>
         <div className={styles['page-number-text']}>
-          {currentSlideIndex + 1} / {slides.length}
+          {selectedSlideIds.length > 1 
+            ? `${selectedSlideIds.length} выбрано`
+            : `${currentSlideIndex + 1} / ${slides.length}`
+          }
         </div>
       </div>
       
@@ -135,8 +147,8 @@ export const SlidesList = ({
             key={slide.id}
             slide={slide}
             index={index}
-            isActive={index === currentSlideIndex}
-            onClick={() => onSlideClick(slide.id, index)}
+            isActive={selectedSlideIds.includes(slide.id)}
+            onClick={(ctrlKey) => onSlideClick(slide.id, index, ctrlKey)}
             onAddSlide={onAddSlide}
             onDeleteSlide={() => onDeleteSlide(slide.id, index)}
             dragHandlers={{

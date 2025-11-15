@@ -1,25 +1,33 @@
 import { useState, useCallback, useRef } from 'react';
-import type { DragState, ResizeState, ResizeHandle, Position, Size } from '../types';
+import type { DragState, ResizeState, ResizeHandle, Position, Size, GroupDragState, SlideElement } from '../types';
 
 interface UseDragAndDropProps {
   canvasScale: number;
   slideWidth: number;
   slideHeight: number;
+  selectedElementIds: string[];
+  elements: SlideElement[];
   onUpdatePosition: (elementId: string, position: Position) => void;
   onUpdateSize: (elementId: string, size: Size, position: Position) => void;
+  onUpdateGroupPositions: (updates: Array<{ elementId: string; position: Position }>) => void;
 }
 
 export const useDragAndDrop = ({
   canvasScale,
   slideWidth,
   slideHeight,
+  selectedElementIds,
+  elements,
   onUpdatePosition,
-  onUpdateSize
+  onUpdateSize,
+  onUpdateGroupPositions
 }: UseDragAndDropProps) => {
   const [dragState, setDragState] = useState<DragState | null>(null);
+  const [groupDragState, setGroupDragState] = useState<GroupDragState | null>(null);
   const [resizeState, setResizeState] = useState<ResizeState | null>(null);
 
   const isDraggingRef = useRef(false);
+  const isGroupDraggingRef = useRef(false);
   const isResizingRef = useRef(false);
 
   const handleDragStart = useCallback((
@@ -29,37 +37,71 @@ export const useDragAndDrop = ({
   ) => {
     if (isResizingRef.current) return;
     
-    isDraggingRef.current = true;
-    setDragState({
-      elementId,
-      startX: e.clientX,
-      startY: e.clientY,
-      initialElementX: initialPosition.x,
-      initialElementY: initialPosition.y
-    });
-  }, []);
+    // Проверяем, является ли элемент частью группы
+    if (selectedElementIds.length > 1 && selectedElementIds.includes(elementId)) {
+      // Групповое перемещение
+      isGroupDraggingRef.current = true;
+      
+      const initialPositions = new Map<string, Position>();
+      selectedElementIds.forEach(id => {
+        const element = elements.find(el => el.id === id);
+        if (element) {
+          initialPositions.set(id, { ...element.position });
+        }
+      });
+      
+      setGroupDragState({
+        elementIds: selectedElementIds,
+        startX: e.clientX,
+        startY: e.clientY,
+        initialPositions
+      });
+    } else {
+      // Одиночное перемещение
+      isDraggingRef.current = true;
+      setDragState({
+        elementId,
+        startX: e.clientX,
+        startY: e.clientY,
+        initialElementX: initialPosition.x,
+        initialElementY: initialPosition.y
+      });
+    }
+  }, [selectedElementIds, elements]);
 
   const handleDrag = useCallback((e: React.MouseEvent) => {
-    if (!dragState || !isDraggingRef.current) return;
+    if (groupDragState && isGroupDraggingRef.current) {
+      const deltaX = (e.clientX - groupDragState.startX) / canvasScale;
+      const deltaY = (e.clientY - groupDragState.startY) / canvasScale;
 
-    const deltaX = (e.clientX - dragState.startX) / canvasScale;
-    const deltaY = (e.clientY - dragState.startY) / canvasScale;
+      const updates = Array.from(groupDragState.initialPositions.entries()).map(([elementId, initialPos]) => {
+        const newX = Math.max(0, Math.min(slideWidth, initialPos.x + deltaX));
+        const newY = Math.max(0, Math.min(slideHeight, initialPos.y + deltaY));
+        
+        return {
+          elementId,
+          position: { x: newX, y: newY }
+        };
+      });
 
-    const newX = Math.max(
-      0, 
-      Math.min(slideWidth, dragState.initialElementX + deltaX)
-    );
-    const newY = Math.max(
-      0, 
-      Math.min(slideHeight, dragState.initialElementY + deltaY)
-    );
+      onUpdateGroupPositions(updates);
+      
+    } else if (dragState && isDraggingRef.current) {
+      const deltaX = (e.clientX - dragState.startX) / canvasScale;
+      const deltaY = (e.clientY - dragState.startY) / canvasScale;
 
-    onUpdatePosition(dragState.elementId, { x: newX, y: newY });
-  }, [dragState, canvasScale, slideWidth, slideHeight, onUpdatePosition]);
+      const newX = Math.max(0, Math.min(slideWidth, dragState.initialElementX + deltaX));
+      const newY = Math.max(0, Math.min(slideHeight, dragState.initialElementY + deltaY));
+
+      onUpdatePosition(dragState.elementId, { x: newX, y: newY });
+    }
+  }, [dragState, groupDragState, canvasScale, slideWidth, slideHeight, onUpdatePosition, onUpdateGroupPositions]);
 
   const handleDragEnd = useCallback(() => {
     isDraggingRef.current = false;
+    isGroupDraggingRef.current = false;
     setDragState(null);
+    setGroupDragState(null);
   }, []);
 
   const handleResizeStart = useCallback((
@@ -151,7 +193,7 @@ export const useDragAndDrop = ({
   }, []);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (isDraggingRef.current) {
+    if (isDraggingRef.current || isGroupDraggingRef.current) {
       handleDrag(e);
     } else if (isResizingRef.current) {
       handleResize(e);
@@ -160,8 +202,10 @@ export const useDragAndDrop = ({
 
   return {
     dragState,
+    groupDragState,
     resizeState,
     isDragging: isDraggingRef.current,
+    isGroupDragging: isGroupDraggingRef.current,
     isResizing: isResizingRef.current,
     handleDragStart,
     handleDragEnd,

@@ -13,7 +13,7 @@ export const ElementComponent = ({
   resizeState
 }: {
   element: SlideElement;
-  onClick: () => void;
+  onClick: (e: React.MouseEvent) => void;
   canvasScale: number;
   isSelected: boolean;
   onDragStart: (e: React.MouseEvent, elementId: string) => void;
@@ -25,15 +25,18 @@ export const ElementComponent = ({
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onClick();
-    onDragStart(e, element.id);
+    onClick(e);
+    if (!e.ctrlKey && !e.metaKey) {
+      onDragStart(e, element.id);
+    }
   };
 
   const handleResizeMouseDown = (e: React.MouseEvent, handle: ResizeHandle) => {
     e.stopPropagation();
-    onClick();
+    onClick(e);
     onResizeStart(e, element.id, handle);
   };
+
   return (
     <div
       onMouseDown={handleMouseDown}
@@ -46,8 +49,8 @@ export const ElementComponent = ({
         height: element.size.height * canvasScale,
         cursor: isDragging ? 'grabbing' : isResizing ? 'default' : 'grab',
         transition: isDragging || isResizing ? 'none' : 'box-shadow 0.2s',
-        boxShadow: isSelected 
-          ? '0 0 0 1px #1783FF' 
+        boxShadow: isSelected || isDragging
+          ? '0 0 0 2px #1783FF' 
           : 'none',
         zIndex: isDragging || isResizing ? 1000 : 1
       }}
@@ -82,7 +85,7 @@ export const ElementComponent = ({
           draggable={false}
         />
       )}
-      {isSelected && (
+      {(isSelected || isDragging) && (
         <>
           <div
             onMouseDown={(e) => handleResizeMouseDown(e, 'nw')}
@@ -93,7 +96,6 @@ export const ElementComponent = ({
               cursor: 'nw-resize',
             }}
           />
-          
           
           <div
             onMouseDown={(e) => handleResizeMouseDown(e, 'ne')}

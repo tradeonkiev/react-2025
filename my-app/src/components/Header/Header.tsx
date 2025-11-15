@@ -112,4 +112,3 @@ export const Header = ({ title, onTitleChange, onClickElement }: HeaderProps) =>
     </div>
   );
 };
-// TODO: сделать окно для ввода через инпут один то есть сделать инпут похожим под окно отображения

@@ -14,49 +14,30 @@ export const updateTitle = (editor: Presentation, params: { title: string }): Pr
 export const selectElement = (
   editor: Presentation,
   params: {
-    elementId: string
+    elementId: string;
+    addToSelection?: boolean;
   }
 ): Presentation => {
+  if (params.addToSelection) {
+    // Добавляем к существующему выделению
+    const elementIds = editor.selection.elementIds.includes(params.elementId)
+      ? editor.selection.elementIds.filter(id => id !== params.elementId)
+      : [...editor.selection.elementIds, params.elementId];
+    
+    return {
+      ...editor,
+      selection: {
+        ...editor.selection,
+        elementIds
+      }
+    };
+  }
+  
   return {
     ...editor,
     selection: {
       ...editor.selection,
       elementIds: [params.elementId]
-    }
-  }
-}
-
-export const reorderSlides = (
-  editor: Presentation,
-  params: { fromIndex: number; toIndex: number }
-): Presentation => {
-  const { fromIndex, toIndex } = params;
-  
-  const newSlides = [...editor.slides];
-  const [movedSlide] = newSlides.splice(fromIndex, 1);
-  newSlides.splice(toIndex, 0, movedSlide);
-
-  const currentSlideId = editor.selection.slideIds[0];
-  const currentSlideIndex = editor.slides.findIndex(s => s.id === currentSlideId);
-  
-  let newSelectedSlideId = currentSlideId;
-  
-  if (currentSlideIndex === fromIndex) {
-    newSelectedSlideId = newSlides[toIndex].id;
-  } else if (fromIndex < currentSlideIndex && toIndex >= currentSlideIndex) {
-    const newCurrentIndex = currentSlideIndex - 1;
-    newSelectedSlideId = newSlides[newCurrentIndex].id;
-  } else if (fromIndex > currentSlideIndex && toIndex <= currentSlideIndex) {
-    const newCurrentIndex = currentSlideIndex + 1;
-    newSelectedSlideId = newSlides[newCurrentIndex].id;
-  }
-
-  return {
-    ...editor,
-    slides: newSlides,
-    selection: {
-      ...editor.selection,
-      slideIds: [newSelectedSlideId]
     }
   };
 };
@@ -74,6 +55,41 @@ export const selectMultipleElements = (
   };
 };
 
+export const reorderSlides = (
+  editor: Presentation,
+  params: { fromIndices: number[]; toIndex: number }
+): Presentation => {
+  const { fromIndices, toIndex } = params;
+  const sortedIndices = [...fromIndices].sort((a, b) => a - b);
+  
+  const newSlides = [...editor.slides];
+  const movedSlides = sortedIndices.map(index => newSlides[index]);
+  
+  for (let i = sortedIndices.length - 1; i >= 0; i--) {
+    newSlides.splice(sortedIndices[i], 1);
+  }
+
+  let adjustedToIndex = toIndex;
+  for (const fromIndex of sortedIndices) {
+    console.log(fromIndex, toIndex)
+    if (fromIndex < toIndex) {
+      adjustedToIndex--;
+    }
+  }
+
+  if (toIndex != 0) adjustedToIndex += 1
+  newSlides.splice(adjustedToIndex, 0, ...movedSlides);
+
+  return {
+    ...editor,
+    slides: newSlides,
+    selection: {
+      ...editor.selection,
+      slideIds: movedSlides.map(s => s.id)
+    }
+  };
+};
+
 export const deselectAll = (editor: Presentation): Presentation => {
   return {
     ...editor,
@@ -81,8 +97,8 @@ export const deselectAll = (editor: Presentation): Presentation => {
       slideIds: [],
       elementIds: [],
     }
-  }
-}
+  };
+};
 
 export const addSlide = (editor: Presentation): Presentation => {
   const newSlide: Slide = {
@@ -124,7 +140,24 @@ export const deleteSlide = (
 };
 
 export const selectSlide = (
-  editor: Presentation, params: { slideId: string }): Presentation => {
+  editor: Presentation, 
+  params: { slideId: string; addToSelection?: boolean }
+): Presentation => {
+  if (params.addToSelection) {
+    const slideIds = editor.selection.slideIds.includes(params.slideId)
+      ? editor.selection.slideIds.filter(id => id !== params.slideId)
+      : [...editor.selection.slideIds, params.slideId];
+    
+    return {
+      ...editor,
+      selection: {
+        ...editor.selection,
+        slideIds,
+        elementIds: []
+      }
+    };
+  }
+  
   return {
     ...editor,
     selection: {
@@ -153,6 +186,37 @@ export const updateElementPosition = (
           return {
             ...element,
             position: params.position,
+          };
+        }
+        return element;
+      }),
+    };
+  });
+
+  return {
+    ...editor,
+    slides: updatedSlides,
+  };
+};
+
+export const updateGroupPositions = (
+  editor: Presentation,
+  params: {
+    slideId: string;
+    updates: { elementId: string; position: Position }[];
+  }
+): Presentation => {
+  const updatedSlides = editor.slides.map((slide) => {
+    if (slide.id !== params.slideId) return slide;
+
+    return {
+      ...slide,
+      elements: slide.elements.map((element) => {
+        const update = params.updates.find(u => u.elementId === element.id);
+        if (update) {
+          return {
+            ...element,
+            position: update.position,
           };
         }
         return element;
@@ -199,16 +263,15 @@ export const addTextElement = (editor: Presentation, params: { slideId: string }
 };
 
 export const addImageElement = (editor: Presentation, params: { slideId: string }): Presentation => {
-  
-  const Images: string[] = 
-  [
+  const Images: string[] = [
     'https://i.pinimg.com/736x/62/64/57/626457731d0ab3dc14118c6c4f348661.jpg', 
     'https://i.pinimg.com/1200x/1f/c7/cd/1fc7cdb1d3fc240477dc9c215fa6dc09.jpg', 
     'https://i.pinimg.com/736x/c5/fc/4a/c5fc4ad0137578f3ba6673e9426560cb.jpg', 
     'https://i.pinimg.com/736x/46/8f/5c/468f5c5140266bf9898b5d363ec5032d.jpg', 
     'https://i.pinimg.com/736x/ca/32/79/ca32795567326c5385d89dce5fb47f2f.jpg', 
     'https://i.pinimg.com/736x/29/7e/8c/297e8c19a0057ac9f2a5a479551e4b19.jpg'
-  ]
+  ];
+  
   const newImageElement: ImageElement = {
     id: `image-${Date.now()}`,
     type: 'image',

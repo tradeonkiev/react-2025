@@ -61,6 +61,13 @@ export type DragState = {
   initialElementY: number;
 };
 
+export type GroupDragState = {
+  elementIds: string[];
+  startX: number;
+  startY: number;
+  initialPositions: Map<string, Position>;
+};
+
 export type ResizeHandle = 'nw' | 'ne' | 'sw' | 'se' | 'n' | 's' | 'w' | 'e';
 
 export type ResizeState = {
