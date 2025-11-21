@@ -1,16 +1,17 @@
 import React from 'react';
-import type { Presentation, Position, Size } from '../src/types';
+import type { Position, Size } from '../src/types';
 import { Header } from '../src/components/Header/Header';
 import { SlidesList } from '../src/components/SlidesList/SlidesList';
 import { Editor } from '../src/components/Editor/Editor';
-import { 
-  dispatch, 
-  updateTitle, 
-  addSlide, 
-  deleteSlide, 
-  selectSlide, 
-  addTextElement, 
-  addImageElement, 
+import { ToolBar } from '../src/components/ToolBar/ToolBar';
+import { useAppDispatch, useAppSelector } from '../src/store/hooks';
+import {
+  updateTitle,
+  addSlide,
+  deleteSlide,
+  selectSlide,
+  addTextElement,
+  addImageElement,
   deleteSelectedElements,
   cycleBackground,
   selectElement,
@@ -19,58 +20,56 @@ import {
   updateElementSize,
   updateGroupPositions,
   reorderSlides
-} from '../src/Store/editor';
-import { ToolBar } from '../src/components/ToolBar/ToolBar';
+} from '../src/store/editorSlice';
 
-interface AppProps {
-  presentation: Presentation;
-}
+const App = () => {
+  const dispatch = useAppDispatch();
+  const presentation = useAppSelector((state) => state.editor);
 
-function App({ presentation }: AppProps) {
   const currentSlideId = presentation.selection.slideIds[0];
   const currentSlide = presentation.slides.find(slide => slide.id === currentSlideId) || presentation.slides[0];
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(updateTitle, { title: e.target.value });
+    dispatch(updateTitle({ title: e.target.value }));
   };
 
   const handleElementClick = (elementId: string, ctrlKey: boolean) => {
-    dispatch(selectElement, { elementId, addToSelection: ctrlKey });
+    dispatch(selectElement({ elementId, addToSelection: ctrlKey }));
   };
 
   const handleSlideClick = (slideId: string, index: number, ctrlKey: boolean) => {
-    dispatch(selectSlide, { slideId, addToSelection: ctrlKey });
+    dispatch(selectSlide({ slideId, addToSelection: ctrlKey }));
   };
 
   const handleDeselectAll = () => {
-    dispatch(deselectAll);
+    dispatch(deselectAll());
   };
 
   const handleUpdateElementPosition = (elementId: string, position: Position) => {
-    dispatch(updateElementPosition, { slideId: currentSlideId, elementId, position });
+    dispatch(updateElementPosition({ slideId: currentSlideId, elementId, position }));
   };
 
   const handleUpdateElementSize = (elementId: string, size: Size, position: Position) => {
-    dispatch(updateElementSize, { slideId: currentSlideId, elementId, size, position });
+    dispatch(updateElementSize({ slideId: currentSlideId, elementId, size, position }));
   };
 
   const handleUpdateGroupPositions = (updates: Array<{ elementId: string; position: Position }>) => {
-    dispatch(updateGroupPositions, { slideId: currentSlideId, updates });
+    dispatch(updateGroupPositions({ slideId: currentSlideId, updates }));
   };
 
   const handleToolClick = (toolName: string) => {
     switch(toolName) {
       case 'text':
-        dispatch(addTextElement, { slideId: currentSlideId });
+        dispatch(addTextElement({ slideId: currentSlideId }));
         break;
       case 'image':
-        dispatch(addImageElement, { slideId: currentSlideId });
+        dispatch(addImageElement({ slideId: currentSlideId }));
         break;
       case 'background':
-        dispatch(cycleBackground, { slideId: currentSlideId });
+        dispatch(cycleBackground({ slideId: currentSlideId }));
         break;
       case 'trash':
-        dispatch(deleteSelectedElements, { slideId: currentSlideId });
+        dispatch(deleteSelectedElements({ slideId: currentSlideId }));
         break;
       default:
         console.log(`tool: ${toolName}`);
@@ -78,11 +77,11 @@ function App({ presentation }: AppProps) {
   };
 
   const handleAddSlide = () => {
-    dispatch(addSlide);
+    dispatch(addSlide());
   };
 
   const handleDeleteSlide = (slideId: string) => {
-    dispatch(deleteSlide, { slideId });
+    dispatch(deleteSlide({ slideId }));
   };
 
   const handleHeaderAction = (action: string) => {
@@ -90,7 +89,7 @@ function App({ presentation }: AppProps) {
   };
 
   const handleReorderSlides = (fromIndices: number[], toIndex: number) => {
-    dispatch(reorderSlides, { fromIndices, toIndex });
+    dispatch(reorderSlides({ fromIndices, toIndex }));
   };
 
   return (

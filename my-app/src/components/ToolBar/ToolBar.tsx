@@ -1,7 +1,7 @@
 import {Type, Shapes, Image, Layers, Shredder, Wallpaper } from "lucide-react"
 import styles from './ToolBar.module.css'
 export const ToolBar = ( 
-    {onToolClick, selectedElementIds} :
+    {onToolClick} :
     {
       onToolClick: (toolName: string) => void;
       selectedElementIds?: string[];

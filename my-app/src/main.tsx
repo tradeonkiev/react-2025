@@ -1,25 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { Provider } from 'react-redux';
 import App from '../App/App';
-import { setEditor, addEditorChangeHandler, getEditor } from './Store/editor';
-import { initialPresentation } from './data';
-
-setEditor(initialPresentation);
+import { store } from './store/store';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 
-const renderApp = () => {
-  const editor = getEditor();
-  if (!editor) return;
-
-  root.render(
-    <React.StrictMode>
-      <App presentation={editor}/>
-    </React.StrictMode>
-  );
-};
-
-renderApp();
-addEditorChangeHandler(renderApp);
+root.render(
+  <React.StrictMode>
+    <Provider store={store}>
+      <App />
+    </Provider>
+  </React.StrictMode>
+);
