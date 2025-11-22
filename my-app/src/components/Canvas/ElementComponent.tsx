@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import type { SlideElement, ResizeHandle, ResizeState } from '../../types';
 import styles from './ElementComponents.module.css'
 
@@ -22,18 +22,31 @@ export const ElementComponent = ({
   resizeState: ResizeState | null;
 }) => {
   const isResizing = resizeState?.elementId === element.id;
+  const mouseDownPos = useRef<{ x: number; y: number } | null>(null);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onClick(e);
-    if (!e.ctrlKey && !e.metaKey) {
-      onDragStart(e, element.id);
+    
+    mouseDownPos.current = { x: e.clientX, y: e.clientY };
+    
+    if (e.ctrlKey || e.metaKey) {
+      onClick(e);
+      return;
     }
+    
+    if (!isSelected) {
+      onClick(e);
+    }
+    
+    onDragStart(e, element.id);
   };
 
   const handleResizeMouseDown = (e: React.MouseEvent, handle: ResizeHandle) => {
     e.stopPropagation();
-    onClick(e);
+    if (!isSelected) {
+      onClick(e);
+    }
+    
     onResizeStart(e, element.id, handle);
   };
 

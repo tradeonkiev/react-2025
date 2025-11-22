@@ -9,7 +9,7 @@ interface EditorProps {
   onElementClick: (elementId: string, ctrlKey: boolean) => void;
   width: number;
   height: number;
-  selectedElementIds?: string[];
+  selectedElementIds: string[];
   onUpdateElementPosition: (elementId: string, position: Position) => void;
   onUpdateElementSize: (elementId: string, size: Size, position: Position) => void;
   onUpdateGroupPositions: (updates: Array<{ elementId: string; position: Position }>) => void;
@@ -21,7 +21,7 @@ export const Editor = ({
   onElementClick,
   width,
   height,
-  selectedElementIds = [],
+  selectedElementIds,
   onUpdateElementPosition,
   onUpdateElementSize,
   onUpdateGroupPositions,
@@ -49,6 +49,8 @@ export const Editor = ({
     onUpdateGroupPositions
   });
 
+  console.log(selectedElementIds)
+
   const handleElementDragStart = React.useCallback((
     e: React.MouseEvent,
     elementId: string
@@ -71,7 +73,9 @@ export const Editor = ({
   }, [slide.elements, handleResizeStart]);
 
   const handleEditorClick = (e: React.MouseEvent) => {
+    
     if (e.target === e.currentTarget) {
+      console.log('penisi')
       onDeselectAll();
     }
   };
