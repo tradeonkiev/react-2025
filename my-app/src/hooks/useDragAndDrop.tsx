@@ -72,8 +72,8 @@ export const useDragAndDrop = ({
       const deltaY = (e.clientY - groupDragState.startY) / canvasScale;
 
       const updates = Array.from(groupDragState.initialPositions.entries()).map(([elementId, initialPos]) => {
-        const newX = Math.max(0, Math.min(slideWidth, initialPos.x + deltaX));
-        const newY = Math.max(0, Math.min(slideHeight, initialPos.y + deltaY));
+        const newX = initialPos.x + deltaX;
+        const newY = initialPos.y + deltaY;
         
         return {
           elementId,
@@ -87,8 +87,8 @@ export const useDragAndDrop = ({
       const deltaX = (e.clientX - dragState.startX) / canvasScale;
       const deltaY = (e.clientY - dragState.startY) / canvasScale;
 
-      const newX = Math.max(0, Math.min(slideWidth, dragState.initialElementX + deltaX));
-      const newY = Math.max(0, Math.min(slideHeight, dragState.initialElementY + deltaY));
+      const newX = dragState.initialElementX + deltaX;
+      const newY = dragState.initialElementY + deltaY;
 
       onUpdatePosition(dragState.elementId, { x: newX, y: newY });
     }

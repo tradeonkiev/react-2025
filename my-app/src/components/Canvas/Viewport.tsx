@@ -54,7 +54,7 @@ export const Viewport = ({
       style={{
         width: width,
         height: height,
-        overflow: "hidden",
+        // overflow: "hidden",
         ...getBackgroundStyle(slide.background)
       }}
     >
