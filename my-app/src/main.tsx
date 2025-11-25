@@ -15,3 +15,5 @@ root.render(
     </Provider>
   </React.StrictMode>
 );
+
+//TODO: normalize/reset css как индекс ксс чтобы пофиксить стили свтроенные

@@ -33,9 +33,10 @@ const App = () => {
   const currentSlideId = presentation.selection.slideIds[0];
   const currentSlide = presentation.slides.find(slide => slide.id === currentSlideId) || presentation.slides[0];
 
+  //TODO: вынести в хук
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      const isMac = navigator.platform.toUpperCase().includes("MAC");
+      const isMac = navigator.userAgent.toUpperCase().includes("MAC");
       const mod = isMac ? e.metaKey : e.ctrlKey;
 
       if (!mod) return;
@@ -177,3 +178,7 @@ const App = () => {
 };
 
 export default App;
+
+
+//TODO:  избавиться от пропсов через слайсы
+// костыль: тротул и дебаунсер

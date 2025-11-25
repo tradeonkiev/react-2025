@@ -49,7 +49,7 @@ export const Editor = ({
     onUpdateGroupPositions
   });
 
-  console.log(selectedElementIds)
+  // console.log(selectedElementIds)
 
   const handleElementDragStart = React.useCallback((
     e: React.MouseEvent,
@@ -75,7 +75,6 @@ export const Editor = ({
   const handleEditorClick = (e: React.MouseEvent) => {
     
     if (e.target === e.currentTarget) {
-      console.log('penisi')
       onDeselectAll();
     }
   };
