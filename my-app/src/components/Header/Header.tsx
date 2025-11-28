@@ -1,14 +1,14 @@
 import React from 'react';
 import { Pencil, FileText, Redo2, Undo2, Presentation, Bird } from 'lucide-react';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { updateTitle } from '../../store/editorSlice';
+import { undo, redo } from '../../store/historySlice';
 import styles from './Header.module.css';
 
-interface HeaderProps {
-  title: string;
-  onTitleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onClickElement: (elementEvent: string) => void
-}
-
-export const Header = ({ title, onTitleChange, onClickElement }: HeaderProps) => {
+export const Header = () => {
+  const dispatch = useAppDispatch();
+  const title = useAppSelector((state) => state.history.present.title);
+  
   const [isHovered, setIsHovered] = React.useState(false);
   const [isEditing, setIsEditing] = React.useState(false);
   const spanRef = React.useRef<HTMLSpanElement>(null);
@@ -21,25 +21,19 @@ export const Header = ({ title, onTitleChange, onClickElement }: HeaderProps) =>
     }
   }, [title, isEditing]);
 
-  const handleBlur = () => setIsEditing(false);
-
   return (
-    <div
-      className={styles['top-bar']}
-    >
+    <div className={styles['top-bar']}>
       <div className={styles['top-bar-left']}>
         <button 
-        className={styles['icon-button']}
-        onClick={
-          () => onClickElement("назад")
-        }>
+          className={styles['icon-button']}
+          onClick={() => dispatch(undo())}
+        >
           <Undo2 className={styles['redo-undo-icon']}/>
         </button>
         <button 
-        className={styles['icon-button']}
-        onClick={
-          () => onClickElement("перед")
-        }>
+          className={styles['icon-button']}
+          onClick={() => dispatch(redo())}
+        >
           <Redo2 className={styles['redo-undo-icon']}/>
         </button>
       </div>
@@ -69,8 +63,8 @@ export const Header = ({ title, onTitleChange, onClickElement }: HeaderProps) =>
           <input
             type="text"
             value={title}
-            onChange={onTitleChange}
-            onBlur={handleBlur}
+            onChange={(e) => dispatch(updateTitle({ title: e.target.value }))}
+            onBlur={() => setIsEditing(false)}
             autoFocus
             className={styles['title-input']}
             style={{
@@ -82,29 +76,27 @@ export const Header = ({ title, onTitleChange, onClickElement }: HeaderProps) =>
             onClick={() => setIsEditing(true)}
             className={styles['title-text']}
           >
-            <span 
-              style={{ whiteSpace: 'nowrap' }}
-            >
+            <span style={{ whiteSpace: 'nowrap' }}>
               {title}
             </span>
             <Pencil className={styles['title-edit']} style={{opacity: isHovered? 1: 0}}/>
           </div>
         )}
       </div>
+      
       <div className={styles['top-bar-right']}>
         <button 
           className={styles['ppt-button']}
-          onClick={
-            () => onClickElement("сохранить")
-        }>
+          onClick={() => console.log("сохранить")}
+        >
           <FileText style={{ width: 18, height: 18 }} />
           Сохранить
         </button>
 
-        <button className={styles['ppt-button']}
-          onClick={
-            () => onClickElement("транслировать")
-        }>
+        <button 
+          className={styles['ppt-button']}
+          onClick={() => console.log("транслировать")}
+        >
           <Presentation style={{ width: 18, height: 18 }} />
           Трансляция
         </button>

@@ -4,16 +4,9 @@ import { Grid, Plus, Trash2 } from "lucide-react";
 import type { Slide } from '../../types';
 import { Viewport } from '../Canvas/Viewport';
 import { useSlideDragDrop } from '../../hooks/useSlideDragDrop';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { addSlide, deleteSlide, selectSlide, reorderSlides } from '../../store/editorSlice';
 import styles from './SlideList.module.css';
-
-interface SlidesListProps {
-  slides: Slide[];
-  selectedSlideIds: string[];
-  onSlideClick: (slideId: string, index: number, ctrlKey: boolean) => void;
-  onAddSlide: () => void;
-  onDeleteSlide: (slideId: string, index: number) => void;
-  onReorderSlides: (fromIndices: number[], toIndex: number) => void;
-}
 
 const SlidePreview = ({ 
   slide, 
@@ -112,16 +105,17 @@ const SlidePreview = ({
   );
 };
 
-export const SlidesList = ({
-  slides, 
-  selectedSlideIds, 
-  onSlideClick,
-  onAddSlide,
-  onDeleteSlide,
-  onReorderSlides
-}: SlidesListProps) => {
-  const dragDrop = useSlideDragDrop(selectedSlideIds, slides, onReorderSlides);
+export const SlidesList = () => {
+  const dispatch = useAppDispatch();
+  const slides = useAppSelector((state) => state.history.present.slides);
+  const selectedSlideIds = useAppSelector((state) => state.history.present.selection.slideIds);
 
+
+  const handleReorderSlides = (fromIndices: number[], toIndex: number) => {
+    dispatch(reorderSlides({ fromIndices, toIndex }));
+  };
+
+  const dragDrop = useSlideDragDrop(selectedSlideIds, slides, handleReorderSlides);
   const currentSlideIndex = slides.findIndex(s => selectedSlideIds.includes(s.id));
 
   return (
@@ -145,9 +139,9 @@ export const SlidesList = ({
             slide={slide}
             index={index}
             isActive={selectedSlideIds.includes(slide.id)}
-            onClick={(ctrlKey) => onSlideClick(slide.id, index, ctrlKey)}
-            onAddSlide={onAddSlide}
-            onDeleteSlide={() => onDeleteSlide(slide.id, index)}
+            onClick={(ctrlKey) => dispatch(selectSlide({ slideId: slide.id, addToSelection: ctrlKey }))}
+            onAddSlide={() => dispatch(addSlide())}
+            onDeleteSlide={() => dispatch(deleteSlide({ slideId: slide.id }))}
             dragHandlers={{
               onDragStart: (e) => dragDrop.handleDragStart(e, index),
               onDragOver: (e) => dragDrop.handleDragOver(e, index),

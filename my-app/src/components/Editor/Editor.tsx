@@ -1,33 +1,39 @@
 import React from 'react';
-import type { Slide, Position, Size } from '../../types';
 import { Viewport } from '../Canvas/Viewport';
 import { useDragAndDrop } from '../../hooks/useDragAndDrop';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  selectElement,
+  deselectAll,
+  updateElementPosition,
+  updateElementSize,
+  updateGroupPositions
+} from '../../store/editorSlice';
 import styles from './Editor.module.css';
 
-interface EditorProps {
-  slide: Slide;
-  onElementClick: (elementId: string, ctrlKey: boolean) => void;
-  width: number;
-  height: number;
-  selectedElementIds: string[];
-  onUpdateElementPosition: (elementId: string, position: Position) => void;
-  onUpdateElementSize: (elementId: string, size: Size, position: Position) => void;
-  onUpdateGroupPositions: (updates: Array<{ elementId: string; position: Position }>) => void;
-  onDeselectAll: () => void;
-}
+export const Editor = () => {
+  const dispatch = useAppDispatch();
+  const presentation = useAppSelector((state) => state.history.present);
+  
+  const currentSlideId = presentation.selection.slideIds[0];
+  const currentSlide = presentation.slides.find(slide => slide.id === currentSlideId) || presentation.slides[0];
+  const selectedElementIds = presentation.selection.elementIds;
 
-export const Editor = ({
-  slide,
-  onElementClick,
-  width,
-  height,
-  selectedElementIds,
-  onUpdateElementPosition,
-  onUpdateElementSize,
-  onUpdateGroupPositions,
-  onDeselectAll
-}: EditorProps) => {
-  const canvasScale = Math.min(width / slide.size.width, height / slide.size.height);
+  const width = 1280;
+  const height = 720;
+  const canvasScale = Math.min(width / currentSlide.size.width, height / currentSlide.size.height);
+
+  const handleUpdateElementPosition = (elementId: string, position: { x: number; y: number }) => {
+    dispatch(updateElementPosition({ slideId: currentSlideId, elementId, position }));
+  };
+
+  const handleUpdateElementSize = (elementId: string, size: { width: number; height: number }, position: { x: number; y: number }) => {
+    dispatch(updateElementSize({ slideId: currentSlideId, elementId, size, position }));
+  };
+
+  const handleUpdateGroupPositions = (updates: Array<{ elementId: string; position: { x: number; y: number } }>) => {
+    dispatch(updateGroupPositions({ slideId: currentSlideId, updates }));
+  };
 
   const {
     dragState,
@@ -40,42 +46,47 @@ export const Editor = ({
     handleMouseMove
   } = useDragAndDrop({
     canvasScale,
-    slideWidth: slide.size.width,
-    slideHeight: slide.size.height,
+    slideWidth: currentSlide.size.width,
+    slideHeight: currentSlide.size.height,
     selectedElementIds,
-    elements: slide.elements,
-    onUpdatePosition: onUpdateElementPosition,
-    onUpdateSize: onUpdateElementSize,
-    onUpdateGroupPositions
+    elements: currentSlide.elements,
+    onUpdatePosition: handleUpdateElementPosition,
+    onUpdateSize: handleUpdateElementSize,
+    onUpdateGroupPositions: handleUpdateGroupPositions
   });
-
-  // console.log(selectedElementIds)
 
   const handleElementDragStart = React.useCallback((
     e: React.MouseEvent,
     elementId: string
   ) => {
-    const element = slide.elements.find(el => el.id === elementId);
+    const element = currentSlide.elements.find(el => el.id === elementId);
     if (!element) return;
 
     handleDragStart(e, elementId, element.position);
-  }, [slide.elements, handleDragStart]);
+  }, [currentSlide.elements, handleDragStart]);
 
   const handleElementResizeStart = React.useCallback((
     e: React.MouseEvent,
     elementId: string,
     handle: any
   ) => {
-    const element = slide.elements.find(el => el.id === elementId);
+    const element = currentSlide.elements.find(el => el.id === elementId);
     if (!element) return;
 
     handleResizeStart(e, elementId, handle, element.size, element.position);
-  }, [slide.elements, handleResizeStart]);
+  }, [currentSlide.elements, handleResizeStart]);
+
+  const handleElementClick = (elementId: string, ctrlKey: boolean) => {
+    dispatch(selectElement({ elementId, addToSelection: ctrlKey }));
+  };
+
+  const handleDeselectAll = () => {
+    dispatch(deselectAll());
+  };
 
   const handleEditorClick = (e: React.MouseEvent) => {
-    
     if (e.target === e.currentTarget) {
-      onDeselectAll();
+      handleDeselectAll();
     }
   };
   
@@ -90,11 +101,11 @@ export const Editor = ({
     >
       <div className={styles['wrapper']}>
         <Viewport
-          slide={slide}
+          slide={currentSlide}
           width={width}
           height={height}
           selectedElementIds={selectedElementIds}
-          onElementClick={onElementClick}
+          onElementClick={handleElementClick}
           onDragStart={handleElementDragStart}
           onDragEnd={handleDragEnd}
           dragState={dragState}

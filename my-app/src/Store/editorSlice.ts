@@ -42,4 +42,6 @@ export const {
   cycleBackground
 } = editorSlice.actions;
 
+export const editorActions = editorSlice.actions;
+
 export default editorSlice.reducer;
