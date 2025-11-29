@@ -1,13 +1,15 @@
 import React from 'react';
-import { Pencil, FileText, Redo2, Undo2, Presentation, Bird } from 'lucide-react';
+import { Pencil, FileText, Redo2, Undo2, Presentation, Bird, LogOut } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../Store/hooks';
 import { updateTitle } from '../../Store/editorSlice/editorSlice';
 import { undo, redo } from '../../Store/history/historySlice';
+import { logout } from '../../Store/auth/authSlice';
 import styles from './Header.module.css';
 
 export const Header = () => {
   const dispatch = useAppDispatch();
   const title = useAppSelector((state) => state.history.present.title);
+  const user = useAppSelector((state) => state.auth.user);
   
   const [isHovered, setIsHovered] = React.useState(false);
   const [isEditing, setIsEditing] = React.useState(false);
@@ -20,6 +22,10 @@ export const Header = () => {
       setInputWidth(width);
     }
   }, [title, isEditing]);
+
+  const handleLogout = () => {
+    dispatch(logout());
+  };
 
   return (
     <div className={styles['top-bar']}>
@@ -85,6 +91,12 @@ export const Header = () => {
       </div>
       
       <div className={styles['top-bar-right']}>
+        {user && (
+          <div className={styles['user-info']}>
+            <span className={styles['user-name']}>{user.name.toUpperCase()}</span>
+          </div>
+        )}
+        
         <button 
           className={styles['ppt-button']}
           onClick={() => console.log("сохранить")}
@@ -99,6 +111,14 @@ export const Header = () => {
         >
           <Presentation style={{ width: 18, height: 18 }} />
           Трансляция
+        </button>
+
+        <button 
+          className={styles['ppt-button']}
+          onClick={handleLogout}
+        >
+          <LogOut style={{ width: 18, height: 18 }} />
+          Выйти
         </button>
       </div>
     </div>

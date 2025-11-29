@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import editorReducer from './editorSlice/editorSlice';
 import historyReducer, { execute, updateHistory } from './history/historySlice';
+import authReducer from './auth/authSlice';
 import type { Middleware } from '@reduxjs/toolkit';
 import { syncWithHistory } from './editorSlice/editorSlice';
 
@@ -21,13 +22,6 @@ const undoableActions = [
   "editor/endUserAction",
   "editor/deleteSelectedElements",
   "editor/cycleBackground"
-];
-
-const selectionActions = [
-  "editor/selectElement",
-  "editor/selectMultipleElements",
-  "editor/deselectAll",
-  "editor/selectSlide"
 ];
 
 const historyMiddleware: Middleware = store => next => (action: any) => {
@@ -64,7 +58,8 @@ const syncMiddleware: Middleware = store => next => (action: any) => {
 export const store = configureStore({
   reducer: {
     editor: editorReducer,
-    history: historyReducer
+    history: historyReducer,
+    auth: authReducer
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware().concat(historyMiddleware, syncMiddleware)

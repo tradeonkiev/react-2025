@@ -1,12 +1,41 @@
+import { useEffect } from 'react';
 import { Header } from '../src/components/Header/Header';
 import { SlidesList } from '../src/components/SlidesList/SlidesList';
 import { Editor } from '../src/components/Editor/Editor';
 import { ToolBar } from '../src/components/ToolBar/ToolBar';
-// import { account } from "../appwrite"
+import { AuthForm } from '../src/components/Auth/AuthForm';
 import { useKeyboardShortcuts } from '../src/hooks/useUndoHotkeys';
+import { useAppDispatch, useAppSelector } from '../src/Store/hooks';
+import { checkAuth } from '../src/Store/auth/authSlice';
 
 const App = () => {
   useKeyboardShortcuts();
+  const dispatch = useAppDispatch();
+  const { isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
+
+  useEffect(() => {
+    dispatch(checkAuth());
+  }, [dispatch]);
+
+  if (isLoading) {
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+        fontFamily: 'Segoe UI',
+        fontSize: '18px',
+        color: '#6b7280'
+      }}>
+        Загрузка...
+      </div>
+    );
+  }
+  
+  if (!isAuthenticated) {
+    return <AuthForm />;
+  }
 
   return (
     <div style={{

@@ -1,4 +1,3 @@
-// src/hooks/useDragAndDrop.tsx
 import { useState, useCallback, useRef } from 'react';
 import type { DragState, ResizeState, ResizeHandle, Position, Size, GroupDragState, SlideElement } from '../types';
 

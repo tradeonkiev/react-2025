@@ -5,7 +5,6 @@
     height: 52px;
     gap: 16px;
     background-color: #ffffff;
-    /* border: 1px solid #d1d5db; */
     padding: 0px 12px;
 }
 
@@ -46,13 +45,30 @@
 
 .top-bar-right {
     display: flex;
+    align-items: center;
     gap: 12px;
 }
+
+.user-info {
+    display: flex;
+    align-items: center;
+    padding: 6px 12px;
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 8px;
+}
+
+.user-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #667eea;
+}
+
 .ppt-icon {
     color: #1783FF;
     background-color: rgba(23, 131, 255, .1);
     border-radius: 4px;
 }
+
 .ppt-button {
     display: inline-flex;
     align-items: center;
@@ -74,10 +90,8 @@
 }
 
 .ppt-button:hover {
-    background: rgba(0, 0, 0, .1);;
+    background: rgba(0, 0, 0, .1);
 }
-
-
 
 .redo-undo-icon {
     color: rgba(0, 0, 0, .6);
@@ -119,6 +133,3 @@
     height: 16px;
     color: rgba(0, 0, 0, .5);
 }
-/* TODO: переделать через грид чтобы по центру было */
-
-/* TODO: сортировать модклями а не типами */
