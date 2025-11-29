@@ -1,5 +1,5 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
-import type { Presentation, Slide } from "../../types";
+import type { Presentation, Slide } from "../../../types";
 
 
 export const addSlide = (state: Presentation) => {

@@ -1,4 +1,4 @@
-import type { Presentation, Position, Size, TextElement, ImageElement, Background } from "../../types";
+import type { Presentation, Position, Size, TextElement, ImageElement, Background } from "../../../types";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
 export const updateElementPosition = (

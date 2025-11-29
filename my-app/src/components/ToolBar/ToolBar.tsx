@@ -5,7 +5,7 @@ import {
   addImageElement,
   deleteSelectedElements,
   cycleBackground
-} from '../../Store/editorSlice';
+} from '../../Store/editorSlice/editorSlice';
 import styles from './ToolBar.module.css';
 
 export const ToolBar = () => {

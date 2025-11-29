@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
-import editorReducer from './editorSlice';
-import historyReducer, { execute } from './historySlice';
+import editorReducer from './editorSlice/editorSlice';
+import historyReducer, { execute, updateHistory } from './history/historySlice';
 import type { Middleware } from '@reduxjs/toolkit';
 
 const undoableActions = [
@@ -22,15 +22,41 @@ const undoableActions = [
   "editor/cycleBackground"
 ];
 
+const selectionActions = [
+  "editor/selectElement",
+  "editor/selectMultipleElements",
+  "editor/deselectAll",
+  "editor/selectSlide"
+];
+
 const historyMiddleware: Middleware = store => next => (action: any) => {
-  const result = next(action);
+  const stateBefore = store.getState().editor;
+
   if (undoableActions.includes(action.type)) {
-    const state = store.getState().editor;
-    store.dispatch(
-      execute(state)
-    );
+    store.dispatch(updateHistory(stateBefore));
   }
 
+  const result = next(action);
+
+  if (undoableActions.includes(action.type)) {
+    const stateAfter = store.getState().editor;
+    store.dispatch(execute({
+      event: action.type,
+      presentation: stateAfter
+    }));
+  }
+
+  return result;
+};
+
+const syncMiddleware: Middleware = store => next => (action: any) => {
+  const result = next(action);
+  
+  if (action.type === 'history/undo' || action.type === 'history/redo') {
+    const historyState = store.getState().history.present;
+    store.dispatch({ type: 'editor/syncWithHistory', payload: historyState });
+  }
+  
   return result;
 };
 
@@ -40,11 +66,8 @@ export const store = configureStore({
     history: historyReducer
   },
   middleware: getDefaultMiddleware =>
-    getDefaultMiddleware().concat(historyMiddleware)
+    getDefaultMiddleware().concat(historyMiddleware, syncMiddleware)
 });
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
-
-//TODO: переделать использования стора
-//TODO: сделать чтобы выделение не тригирило историю

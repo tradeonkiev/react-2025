@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { Presentation } from '../types';
-import { initialPresentation } from '../data';
+import type { Presentation } from '../../types';
+import { initialPresentation } from '../../data';
 
 import * as slides from './reducer/slides';
 import * as selection from './reducer/selection'
@@ -9,7 +9,6 @@ import * as elements from './reducer/elements'
 const initialState: Presentation = initialPresentation;
 
 const editorSlice = createSlice({
-
   name: 'editor',
   initialState,
   reducers: {
@@ -17,15 +16,19 @@ const editorSlice = createSlice({
       state.title = action.payload.title;
     },
 
+    syncWithHistory: (_state, action: PayloadAction<Presentation>) => {
+      return action.payload;
+    },
+
     ...slides, 
     ...selection,
     ...elements,
-
   }
 });
 
 export const {
   updateTitle,
+  syncWithHistory,
   selectElement,
   selectMultipleElements,
   deselectAll,

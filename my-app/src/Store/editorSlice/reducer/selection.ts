@@ -1,4 +1,4 @@
-import type { Presentation } from "../../types";
+import type { Presentation } from "../../../types";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
 export const selectElement = (
