@@ -1,39 +1,12 @@
-import { useEffect } from 'react';
 import { Header } from '../src/components/Header/Header';
 import { SlidesList } from '../src/components/SlidesList/SlidesList';
 import { Editor } from '../src/components/Editor/Editor';
 import { ToolBar } from '../src/components/ToolBar/ToolBar';
-import { useAppDispatch } from '../src/Store/hooks';
-import { undo, redo } from "../src/Store/history/historySlice";
+// import { account } from "../appwrite"
+import { useKeyboardShortcuts } from '../src/hooks/useUndoHotkeys';
 
 const App = () => {
-  const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      const isMac = navigator.userAgent.toUpperCase().includes("MAC");
-      const mod = isMac ? e.metaKey : e.ctrlKey;
-
-      if (!mod) return;
-
-      if (e.key === "z") {
-        e.preventDefault();
-        if (isMac && e.shiftKey) {
-          dispatch(redo());
-        } else {
-          dispatch(undo());
-        }
-      }
-
-      if (e.key === "y") {
-        e.preventDefault();
-        dispatch(redo());
-      }
-    };
-
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [dispatch]);
+  useKeyboardShortcuts();
 
   return (
     <div style={{

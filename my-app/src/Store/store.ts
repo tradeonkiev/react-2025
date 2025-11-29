@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import editorReducer from './editorSlice/editorSlice';
 import historyReducer, { execute, updateHistory } from './history/historySlice';
 import type { Middleware } from '@reduxjs/toolkit';
+import { syncWithHistory } from './editorSlice/editorSlice';
 
 const undoableActions = [
   "editor/updateTitle",
@@ -54,7 +55,7 @@ const syncMiddleware: Middleware = store => next => (action: any) => {
   
   if (action.type === 'history/undo' || action.type === 'history/redo') {
     const historyState = store.getState().history.present;
-    store.dispatch({ type: 'editor/syncWithHistory', payload: historyState });
+    store.dispatch(syncWithHistory(historyState));
   }
   
   return result;
