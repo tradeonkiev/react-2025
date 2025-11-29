@@ -1,14 +1,14 @@
 import React from 'react';
 import { Viewport } from '../Canvas/Viewport';
 import { useDragAndDrop } from '../../hooks/useDragAndDrop';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../Store/hooks';
 import {
   selectElement,
   deselectAll,
   updateElementPosition,
   updateElementSize,
   updateGroupPositions
-} from '../../store/editorSlice';
+} from '../../Store/editorSlice';
 import styles from './Editor.module.css';
 
 export const Editor = () => {
@@ -39,6 +39,8 @@ export const Editor = () => {
     dragState,
     groupDragState,
     resizeState,
+    tempPositions,
+    tempSize,
     handleDragStart,
     handleDragEnd,
     handleResizeStart,
@@ -113,6 +115,8 @@ export const Editor = () => {
           onResizeStart={handleElementResizeStart}
           onResizeEnd={handleResizeEnd}
           resizeState={resizeState}
+          tempPositions={tempPositions}
+          tempSize={tempSize}
         />
       </div>
     </div>

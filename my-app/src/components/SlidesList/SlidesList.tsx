@@ -4,8 +4,8 @@ import { Grid, Plus, Trash2 } from "lucide-react";
 import type { Slide } from '../../types';
 import { Viewport } from '../Canvas/Viewport';
 import { useSlideDragDrop } from '../../hooks/useSlideDragDrop';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { addSlide, deleteSlide, selectSlide, reorderSlides } from '../../store/editorSlice';
+import { useAppDispatch, useAppSelector } from '../../Store/hooks';
+import { addSlide, deleteSlide, selectSlide, reorderSlides } from '../../Store/editorSlice';
 import styles from './SlideList.module.css';
 
 const SlidePreview = ({ 

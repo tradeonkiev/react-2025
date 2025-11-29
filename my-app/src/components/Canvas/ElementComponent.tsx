@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import type { SlideElement, ResizeHandle, ResizeState } from '../../types';
+import type { SlideElement, ResizeHandle, ResizeState, Position, Size } from '../../types';
 import styles from './ElementComponents.module.css'
 
 export const ElementComponent = ({
@@ -10,7 +10,9 @@ export const ElementComponent = ({
   onDragStart,
   isDragging,
   onResizeStart,
-  resizeState
+  resizeState,
+  tempPosition,
+  tempSize
 }: {
   element: SlideElement;
   onClick: (e: React.MouseEvent) => void;
@@ -20,9 +22,15 @@ export const ElementComponent = ({
   isDragging: boolean;
   onResizeStart: (e: React.MouseEvent, elementId: string, handle: ResizeHandle) => void;
   resizeState: ResizeState | null;
+  tempPosition?: Position;
+  tempSize?: { size: Size; position: Position };
 }) => {
   const isResizing = resizeState?.elementId === element.id;
   const mouseDownPos = useRef<{ x: number; y: number } | null>(null);
+
+  const displayPosition = tempPosition || element.position;
+  const displaySize = tempSize?.size || element.size;
+  const displaySizePosition = tempSize?.position || element.position;
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -56,10 +64,10 @@ export const ElementComponent = ({
       className={styles['test']}
       style={{
         position: 'absolute',
-        left: element.position.x * canvasScale,
-        top: element.position.y * canvasScale,
-        width: element.size.width * canvasScale,
-        height: element.size.height * canvasScale,
+        left: (tempSize ? displaySizePosition.x : displayPosition.x) * canvasScale,
+        top: (tempSize ? displaySizePosition.y : displayPosition.y) * canvasScale,
+        width: displaySize.width * canvasScale,
+        height: displaySize.height * canvasScale,
         cursor: isDragging ? 'grabbing' : isResizing ? 'default' : 'grab',
         transition: isDragging || isResizing ? 'none' : 'box-shadow 0.2s',
         boxShadow: isSelected || isDragging

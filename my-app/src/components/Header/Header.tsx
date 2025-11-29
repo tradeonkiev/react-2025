@@ -1,8 +1,8 @@
 import React from 'react';
 import { Pencil, FileText, Redo2, Undo2, Presentation, Bird } from 'lucide-react';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { updateTitle } from '../../store/editorSlice';
-import { undo, redo } from '../../store/historySlice';
+import { useAppDispatch, useAppSelector } from '../../Store/hooks';
+import { updateTitle } from '../../Store/editorSlice';
+import { undo, redo } from '../../Store/historySlice';
 import styles from './Header.module.css';
 
 export const Header = () => {

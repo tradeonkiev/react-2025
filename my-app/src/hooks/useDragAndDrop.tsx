@@ -1,3 +1,4 @@
+// src/hooks/useDragAndDrop.tsx
 import { useState, useCallback, useRef } from 'react';
 import type { DragState, ResizeState, ResizeHandle, Position, Size, GroupDragState, SlideElement } from '../types';
 
@@ -25,6 +26,9 @@ export const useDragAndDrop = ({
   const [dragState, setDragState] = useState<DragState | null>(null);
   const [groupDragState, setGroupDragState] = useState<GroupDragState | null>(null);
   const [resizeState, setResizeState] = useState<ResizeState | null>(null);
+
+  const [tempPositions, setTempPositions] = useState<Map<string, Position>>(new Map());
+  const [tempSize, setTempSize] = useState<{ elementId: string; size: Size; position: Position } | null>(null);
 
   const isDraggingRef = useRef(false);
   const isGroupDraggingRef = useRef(false);
@@ -71,17 +75,15 @@ export const useDragAndDrop = ({
       const deltaX = (e.clientX - groupDragState.startX) / canvasScale;
       const deltaY = (e.clientY - groupDragState.startY) / canvasScale;
 
-      const updates = Array.from(groupDragState.initialPositions.entries()).map(([elementId, initialPos]) => {
+      const newTempPositions = new Map<string, Position>();
+      
+      groupDragState.initialPositions.forEach((initialPos, elementId) => {
         const newX = initialPos.x + deltaX;
         const newY = initialPos.y + deltaY;
-        
-        return {
-          elementId,
-          position: { x: newX, y: newY }
-        };
+        newTempPositions.set(elementId, { x: newX, y: newY });
       });
 
-      onUpdateGroupPositions(updates);
+      setTempPositions(newTempPositions);
       
     } else if (dragState && isDraggingRef.current) {
       const deltaX = (e.clientX - dragState.startX) / canvasScale;
@@ -90,16 +92,35 @@ export const useDragAndDrop = ({
       const newX = dragState.initialElementX + deltaX;
       const newY = dragState.initialElementY + deltaY;
 
-      onUpdatePosition(dragState.elementId, { x: newX, y: newY });
+      const newTempPositions = new Map<string, Position>();
+      newTempPositions.set(dragState.elementId, { x: newX, y: newY });
+      setTempPositions(newTempPositions);
     }
-  }, [dragState, groupDragState, canvasScale, slideWidth, slideHeight, onUpdatePosition, onUpdateGroupPositions]);
+  }, [dragState, groupDragState, canvasScale]);
 
   const handleDragEnd = useCallback(() => {
+    if (isGroupDraggingRef.current && groupDragState) {
+      const updates = Array.from(tempPositions.entries()).map(([elementId, position]) => ({
+        elementId,
+        position
+      }));
+      
+      if (updates.length > 0) {
+        onUpdateGroupPositions(updates);
+      }
+    } else if (isDraggingRef.current && dragState) {
+      const finalPosition = tempPositions.get(dragState.elementId);
+      if (finalPosition) {
+        onUpdatePosition(dragState.elementId, finalPosition);
+      }
+    }
+
     isDraggingRef.current = false;
     isGroupDraggingRef.current = false;
     setDragState(null);
     setGroupDragState(null);
-  }, []);
+    setTempPositions(new Map());
+  }, [dragState, groupDragState, tempPositions, onUpdatePosition, onUpdateGroupPositions]);
 
   const handleResizeStart = useCallback((
     e: React.MouseEvent,
@@ -177,17 +198,22 @@ export const useDragAndDrop = ({
         break;
     }
 
-    onUpdateSize(
-      resizeState.elementId,
-      { width: newWidth, height: newHeight },
-      { x: newX, y: newY }
-    );
-  }, [resizeState, canvasScale, onUpdateSize]);
+    setTempSize({
+      elementId: resizeState.elementId,
+      size: { width: newWidth, height: newHeight },
+      position: { x: newX, y: newY }
+    });
+  }, [resizeState, canvasScale]);
 
   const handleResizeEnd = useCallback(() => {
+    if (isResizingRef.current && tempSize) {
+      onUpdateSize(tempSize.elementId, tempSize.size, tempSize.position);
+    }
+
     isResizingRef.current = false;
     setResizeState(null);
-  }, []);
+    setTempSize(null);
+  }, [tempSize, onUpdateSize]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (isDraggingRef.current || isGroupDraggingRef.current) {
@@ -201,6 +227,8 @@ export const useDragAndDrop = ({
     dragState,
     groupDragState,
     resizeState,
+    tempPositions,
+    tempSize,
     isDragging: isDraggingRef.current,
     isGroupDragging: isGroupDraggingRef.current,
     isResizing: isResizingRef.current,

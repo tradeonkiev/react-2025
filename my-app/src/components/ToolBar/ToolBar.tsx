@@ -1,11 +1,11 @@
 import { Type, Shapes, Image, Layers, Shredder, Wallpaper } from "lucide-react";
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../Store/hooks';
 import {
   addTextElement,
   addImageElement,
   deleteSelectedElements,
   cycleBackground
-} from '../../store/editorSlice';
+} from '../../Store/editorSlice';
 import styles from './ToolBar.module.css';
 
 export const ToolBar = () => {

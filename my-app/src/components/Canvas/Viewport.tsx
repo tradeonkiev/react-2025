@@ -1,6 +1,6 @@
 import { ElementComponent } from "./ElementComponent"
 import { getBackgroundStyle } from "../../utils"
-import type { Slide, DragState, ResizeState, ResizeHandle, GroupDragState } from "../../types"
+import type { Slide, DragState, ResizeState, ResizeHandle, GroupDragState, Position, Size } from "../../types"
 import styles from './Viewport.module.css'
 
 interface ViewportProps {
@@ -16,6 +16,8 @@ interface ViewportProps {
   onResizeStart: (e: React.MouseEvent, elementId: string, handle: ResizeHandle) => void;
   onResizeEnd: () => void;
   resizeState: ResizeState | null;
+  tempPositions?: Map<string, Position>;
+  tempSize?: { elementId: string; size: Size; position: Position } | null;
 }
 
 export const Viewport = ({
@@ -30,7 +32,9 @@ export const Viewport = ({
   groupDragState,
   onResizeStart,
   onResizeEnd,
-  resizeState
+  resizeState,
+  tempPositions,
+  tempSize
 }: ViewportProps) => {
   const canvasScale = Math.min(width / slide.size.width, height / slide.size.height);
 
@@ -54,13 +58,15 @@ export const Viewport = ({
       style={{
         width: width,
         height: height,
-        // overflow: "hidden",
         ...getBackgroundStyle(slide.background)
       }}
     >
       {slide.elements.map((element) => {
         const isDragging = dragState?.elementId === element.id || 
                           (groupDragState?.elementIds.includes(element.id) ?? false);
+        
+        const tempPosition = tempPositions?.get(element.id);
+        const elementTempSize = tempSize?.elementId === element.id ? tempSize : undefined;
         
         return (
           <ElementComponent
@@ -73,6 +79,8 @@ export const Viewport = ({
             isDragging={isDragging}
             onResizeStart={onResizeStart}
             resizeState={resizeState}
+            tempPosition={tempPosition}
+            tempSize={elementTempSize}
           />
         );
       })}
