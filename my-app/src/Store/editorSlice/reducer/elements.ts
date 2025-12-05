@@ -100,15 +100,17 @@ export const addTextElement = (
   }
 }
 
+
+// TODO: избавится от пресетов пусть ошибку выкуидывает (пресеты говно идея) + доделать чтобы картинка со своими размерами добавлялась (прокидывать + изменить в шаблоне)
 export const addImageElement = (
   state: Presentation, 
-  action: PayloadAction<{ slideId: string }>
+  action: PayloadAction<{ slideId: string; imageSrc?: string, naturalWidth?: number, naturalHeight?: number }>
 ) => {
-  const { slideId } = action.payload;
+  const { slideId, imageSrc } = action.payload;
   const slide = state.slides.find(s => s.id === slideId);
 
   if (slide) {
-    const Images: string[] = [
+    const defaultImages: string[] = [
       'https://i.pinimg.com/736x/62/64/57/626457731d0ab3dc14118c6c4f348661.jpg',
       'https://i.pinimg.com/1200x/1f/c7/cd/1fc7cdb1d3fc240477dc9c215fa6dc09.jpg',
       'https://i.pinimg.com/736x/c5/fc/4a/c5fc4ad0137578f3ba6673e9426560cb.jpg',
@@ -117,10 +119,12 @@ export const addImageElement = (
       'https://i.pinimg.com/736x/29/7e/8c/297e8c19a0057ac9f2a5a479551e4b19.jpg'
     ];
 
+    const imageSource = imageSrc || defaultImages[Math.floor(Math.random() * defaultImages.length)];
+
     const newImageElement: ImageElement = {
       id: `image-${Date.now()}`,
       type: 'image',
-      src: Images[Math.floor(Math.random() * Images.length)],
+      src: imageSource,
       position: { x: 150, y: 150 },
       size: { width: 500, height: 500 }
     };
@@ -160,4 +164,3 @@ export const cycleBackground = (
     slide.background = backgrounds[randomIndex];
   }
 }
-  

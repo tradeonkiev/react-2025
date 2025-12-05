@@ -14,8 +14,6 @@ interface UseDragAndDropProps {
 
 export const useDragAndDrop = ({
   canvasScale,
-  slideWidth,
-  slideHeight,
   selectedElementIds,
   elements,
   onUpdatePosition,
