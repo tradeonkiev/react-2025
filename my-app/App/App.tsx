@@ -5,8 +5,8 @@ import { Editor } from '../src/components/Editor/Editor';
 import { ToolBar } from '../src/components/ToolBar/ToolBar';
 import { AuthForm } from '../src/components/Auth/AuthForm';
 import { useKeyboardShortcuts } from '../src/hooks/useUndoHotkeys';
-import { useAppDispatch, useAppSelector } from '../src/Store/hooks';
-import { checkAuth } from '../src/Store/auth/authSlice';
+import { useAppDispatch, useAppSelector } from '../src/store/hooks';
+import { checkAuth } from '../src/store/auth/authSlice';
 
 const App = () => {
   useKeyboardShortcuts();

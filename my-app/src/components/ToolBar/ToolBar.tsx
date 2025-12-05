@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Type, Shapes, Image, Layers, Shredder, Wallpaper } from "lucide-react";
-import { useAppDispatch, useAppSelector } from '../../Store/hooks';
+import { Type, Shapes, Image as ImageIcone, Layers, Shredder, Wallpaper } from "lucide-react";
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
   addTextElement,
   deleteSelectedElements,
   cycleBackground
-} from '../../Store/editorSlice/editorSlice';
+} from '../../store/editorSlice/editorSlice';
 import { ImageModal } from '../ImageModal/ImageModal';
 import styles from './ToolBar.module.css';
 
@@ -39,13 +39,20 @@ export const ToolBar = () => {
 
   const handleImageSelect = (imageSrc: string) => {
     // TODO: поменять на нормальную (лень было)
-    dispatch({
-      type: 'editor/addImageElement',
-      payload: {
-        slideId: currentSlideId,
-        imageSrc
-      }
-    });
+    const img = new Image();
+    img.onload = () => {
+      dispatch({
+        type: 'editor/addImageElement',
+        payload: {
+          slideId: currentSlideId,
+          imageSrc,
+          width: img.width,
+          height: img.height
+        }
+      });
+    }
+    img.src = imageSrc
+    
   };
 
   // TODO: поменять структуру (не нравится)
@@ -68,7 +75,7 @@ export const ToolBar = () => {
           className={styles['icon-button']}
           onClick={() => handleToolClick("image")}
         >
-          <Image className={styles['tool-icon']}/>
+          <ImageIcone className={styles['tool-icon']}/>
         </button>
         <button 
           className={styles['icon-button']}

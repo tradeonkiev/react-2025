@@ -1,9 +1,9 @@
 import React from 'react';
 import { Pencil, FileText, Redo2, Undo2, Presentation, Bird, LogOut } from 'lucide-react';
-import { useAppDispatch, useAppSelector } from '../../Store/hooks';
-import { updateTitle } from '../../Store/editorSlice/editorSlice';
-import { undo, redo } from '../../Store/history/historySlice';
-import { logout } from '../../Store/auth/authSlice';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { updateTitle } from '../../store/editorSlice/editorSlice';
+import { undo, redo } from '../../store/history/historySlice';
+import { logout } from '../../store/auth/authSlice';
 import styles from './Header.module.css';
 
 export const Header = () => {

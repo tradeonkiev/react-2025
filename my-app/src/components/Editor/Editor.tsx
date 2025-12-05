@@ -1,14 +1,14 @@
 import React from 'react';
 import { Viewport } from '../Canvas/Viewport';
 import { useDragAndDrop } from '../../hooks/useDragAndDrop';
-import { useAppDispatch, useAppSelector } from '../../Store/hooks';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { 
   selectElement,
   deselectAll,
   updateElementPosition,
   updateElementSize,
   updateGroupPositions 
-} from '../../Store/editorSlice/editorSlice';
+} from '../../store/editorSlice/editorSlice';
 import styles from './Editor.module.css';
 
 export const Editor = () => {

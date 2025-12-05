@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { X, Link, Upload } from 'lucide-react';
+import { X, Upload } from 'lucide-react';
 import styles from './ImageModal.module.css';
 
 interface ImageModalProps {
@@ -9,7 +9,6 @@ interface ImageModalProps {
 }
 
 export const ImageModal = ({ isOpen, onClose, onImageSelect }: ImageModalProps) => {
-  const [activeTab, setActiveTab] = useState<'url' | 'upload'>('url');
   const [imageUrl, setImageUrl] = useState('');
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -61,7 +60,6 @@ export const ImageModal = ({ isOpen, onClose, onImageSelect }: ImageModalProps) 
   const handleClose = () => {
     setImageUrl('');
     setError('');
-    setActiveTab('url');
     onClose();
   };
 
@@ -81,115 +79,79 @@ export const ImageModal = ({ isOpen, onClose, onImageSelect }: ImageModalProps) 
             onClick={handleClose}
             aria-label="Закрыть"
           >
-            <X/>
-          </button>
-        </div>
-
-        <div className={styles['modal-tabs']}>
-          <button
-            className={`${styles['tab-button']} ${activeTab === 'url' ? styles['active'] : ''}`}
-            onClick={() => {
-              setActiveTab('url');
-              setError('');
-            }}
-          >
-            <Link size={18} />
-            <span>По ссылке</span>
-          </button>
-          <button
-            className={`${styles['tab-button']} ${activeTab === 'upload' ? styles['active'] : ''}`}
-            onClick={() => {
-              setActiveTab('upload');
-              setError('');
-            }}
-          >
-            <Upload size={18} />
-            <span>Загрузить</span>
+            <X />
           </button>
         </div>
 
         <div className={styles['modal-body']}>
-          {activeTab === 'url' ? (
-            <form onSubmit={handleUrlSubmit} className={styles['url-form']}>
-              <div className={styles['form-group']}>
-                <label htmlFor="image-url" className={styles['label']}>
-                  URL изображения
-                </label>
-                <input
-                  id="image-url"
-                  type="text"
-                  value={imageUrl}
-                  onChange={(e) => {
-                    setImageUrl(e.target.value);
-                    setError('');
-                  }}
-                  placeholder="https://example.com/image.jpg"
-                  className={styles['input']}
-                  autoFocus
-                />
+          <div className={styles['upload-section']}>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileUpload}
+              className={styles['file-input']}
+              id="file-upload"
+            />
+            
+            <label htmlFor="file-upload" className={styles['upload-label']}>
+              <div className={styles['upload-icon']}>
+                <Upload size={48} />
               </div>
+              <p className={styles['upload-text']}>
+                Нажмите для выбора файла
+              </p>
+              <p className={styles['upload-hint']}>
+                или перетащите изображение сюда
+              </p>
+              <p className={styles['upload-limit']}>
+                Максимальный размер: 5MB
+              </p>
+            </label>
+          </div>
 
-              {error && (
-                <div className={styles['error-message']}>{error}</div>
-              )}
-
-              <div className={styles['form-actions']}>
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className={styles['cancel-button']}
-                >
-                  Отмена
-                </button>
-                <button
-                  type="submit"
-                  className={styles['submit-button']}
-                >
-                  Добавить
-                </button>
-              </div>
-            </form>
-          ) : (
-            <div className={styles['upload-area']}>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileUpload}
-                className={styles['file-input']}
-                id="file-upload"
-              />
-              
-              <label htmlFor="file-upload" className={styles['upload-label']}>
-                <div className={styles['upload-icon']}>
-                  <Upload size={48} />
-                </div>
-                <p className={styles['upload-text']}>
-                  Нажмите для выбора файла
-                </p>
-                <p className={styles['upload-hint']}>
-                  или перетащите изображение сюда
-                </p>
-                <p className={styles['upload-limit']}>
-                  Максимальный размер: 5MB
-                </p>
+          <div className={styles['divider']}>
+            <span className={styles['divider-text']}>или</span>
+          </div>
+          
+          <form onSubmit={handleUrlSubmit} className={styles['url-form']}>
+            <div className={styles['form-group']}>
+              <label htmlFor="image-url" className={styles['label']}>
+                Вставьте ссылку на изображение
               </label>
-
-              {error && (
-                <div className={styles['error-message']}>{error}</div>
-              )}
-
-              <div className={styles['form-actions']}>
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className={styles['cancel-button']}
-                >
-                  Отмена
-                </button>
-              </div>
+              <input
+                id="image-url"
+                type="text"
+                value={imageUrl}
+                onChange={(e) => {
+                  setImageUrl(e.target.value);
+                  setError('');
+                }}
+                placeholder="https://example.com/image.jpg"
+                className={styles['input']}
+              />
             </div>
-          )}
+
+            {error && (
+              <div className={styles['error-message']}>{error}</div>
+            )}
+
+            <div className={styles['form-actions']}>
+              <button
+                type="button"
+                onClick={handleClose}
+                className={styles['cancel-button']}
+              >
+                Отмена
+              </button>
+              <button
+                type="submit"
+                className={styles['submit-button']}
+              >
+                Добавить
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
