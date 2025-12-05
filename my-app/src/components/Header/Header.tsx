@@ -1,12 +1,17 @@
 import React from 'react';
-import { Pencil, FileText, Redo2, Undo2, Presentation, Bird, LogOut } from 'lucide-react';
+import { Pencil, FileText, Redo2, Undo2, Presentation, LogOut } from 'lucide-react';
+import { SaveIndicator } from '../SaveIndicator/SaveIndicator';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { updateTitle } from '../../store/editorSlice/editorSlice';
 import { undo, redo } from '../../store/history/historySlice';
 import { logout } from '../../store/auth/authSlice';
 import styles from './Header.module.css';
 
-export const Header = () => {
+interface HeaderProps {
+  saveStatus: 'saved' | 'saving' | 'error';
+}
+
+export const Header = ({ saveStatus }: HeaderProps) => {
   const dispatch = useAppDispatch();
   const title = useAppSelector((state) => state.history.present.title);
   const user = useAppSelector((state) => state.auth.user);
@@ -49,9 +54,7 @@ export const Header = () => {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div className={styles['ppt-icon']}>
-          <Bird style={{height: '14px'}}/>
-        </div>
+        <SaveIndicator status={saveStatus} />
         <span
           ref={spanRef}
           style={{
@@ -91,6 +94,7 @@ export const Header = () => {
       </div>
       
       <div className={styles['top-bar-right']}>
+        
         {user && (
           <div className={styles['user-info']}>
             <span className={styles['user-name']}>{user.name.toUpperCase()}</span>

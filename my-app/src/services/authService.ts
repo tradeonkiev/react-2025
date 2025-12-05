@@ -1,4 +1,4 @@
-import { account } from '../../appwrite';
+import { account, client } from '../../appwrite';
 import { ID } from 'appwrite';
 
 export interface User {
@@ -8,6 +8,8 @@ export interface User {
 }
 
 class AuthService {
+  public client = client; 
+
   async register(email: string, password: string, name: string): Promise<User> {
     try {
       const response = await account.create(

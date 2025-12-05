@@ -6,4 +6,5 @@ const client = new Client()
 
 const account = new Account(client)
 
-export { account }
+// Экспортируем client для использования в других сервисах
+export { account, client }

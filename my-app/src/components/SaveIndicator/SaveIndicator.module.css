@@ -1,0 +1,36 @@
+
+
+.status-saving {
+    border-radius: 4px;
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
+}
+
+.status-saved {
+    border-radius: 4px;
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.status-error {
+    border-radius: 4px;
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.check-icon {
+    margin-left: -2px;
+}
+
+.icon-spin {
+    animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}

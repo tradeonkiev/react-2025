@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { X, Upload } from 'lucide-react';
+import { presentationService } from '../../services/presentationService';
 import styles from './ImageModal.module.css';
 
 interface ImageModalProps {
@@ -11,6 +12,7 @@ interface ImageModalProps {
 export const ImageModal = ({ isOpen, onClose, onImageSelect }: ImageModalProps) => {
   const [imageUrl, setImageUrl] = useState('');
   const [error, setError] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;
@@ -32,7 +34,7 @@ export const ImageModal = ({ isOpen, onClose, onImageSelect }: ImageModalProps) 
     }
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -45,21 +47,24 @@ export const ImageModal = ({ isOpen, onClose, onImageSelect }: ImageModalProps) 
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const base64 = event.target?.result as string;
-      onImageSelect(base64);
+    try {
+      setIsUploading(true);
+      setError('')
+      const fileUrl = await presentationService.uploadImage(file);
+      onImageSelect(fileUrl);
       handleClose();
-    };
-    reader.onerror = () => {
+    } catch (error) {
+      console.error('Upload error:', error);
       setError('Ошибка при загрузке файла');
-    };
-    reader.readAsDataURL(file);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleClose = () => {
     setImageUrl('');
     setError('');
+    setIsUploading(false);
     onClose();
   };
 
@@ -78,6 +83,7 @@ export const ImageModal = ({ isOpen, onClose, onImageSelect }: ImageModalProps) 
             className={styles['close-button']}
             onClick={handleClose}
             aria-label="Закрыть"
+            disabled={isUploading}
           >
             <X />
           </button>
@@ -92,14 +98,22 @@ export const ImageModal = ({ isOpen, onClose, onImageSelect }: ImageModalProps) 
               onChange={handleFileUpload}
               className={styles['file-input']}
               id="file-upload"
+              disabled={isUploading}
             />
             
-            <label htmlFor="file-upload" className={styles['upload-label']}>
+            <label 
+              htmlFor="file-upload" 
+              className={styles['upload-label']}
+              style={{ 
+                opacity: isUploading ? 0.5 : 1,
+                cursor: isUploading ? 'not-allowed' : 'pointer'
+              }}
+            >
               <div className={styles['upload-icon']}>
                 <Upload size={48} />
               </div>
               <p className={styles['upload-text']}>
-                Нажмите для выбора файла
+                {isUploading ? 'Загрузка...' : 'Нажмите для выбора файла'}
               </p>
               <p className={styles['upload-hint']}>
                 или перетащите изображение сюда
@@ -129,6 +143,7 @@ export const ImageModal = ({ isOpen, onClose, onImageSelect }: ImageModalProps) 
                 }}
                 placeholder="https://example.com/image.jpg"
                 className={styles['input']}
+                disabled={isUploading}
               />
             </div>
 
@@ -141,12 +156,14 @@ export const ImageModal = ({ isOpen, onClose, onImageSelect }: ImageModalProps) 
                 type="button"
                 onClick={handleClose}
                 className={styles['cancel-button']}
+                disabled={isUploading}
               >
                 Отмена
               </button>
               <button
                 type="submit"
                 className={styles['submit-button']}
+                disabled={isUploading}
               >
                 Добавить
               </button>
