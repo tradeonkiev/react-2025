@@ -9,7 +9,13 @@ interface ImageModalProps {
   onImageSelect: (src: string) => void;
 }
 
-export const ImageModal = ({ isOpen, onClose, onImageSelect }: ImageModalProps) => {
+export const ImageModal = (
+  { 
+    isOpen, 
+    onClose, 
+    onImageSelect 
+  }: ImageModalProps
+) => {
   const [imageUrl, setImageUrl] = useState('');
   const [error, setError] = useState('');
   const [isUploading, setIsUploading] = useState(false);
@@ -82,7 +88,6 @@ export const ImageModal = ({ isOpen, onClose, onImageSelect }: ImageModalProps) 
           <button 
             className={styles['close-button']}
             onClick={handleClose}
-            aria-label="Закрыть"
             disabled={isUploading}
           >
             <X />
@@ -114,9 +119,6 @@ export const ImageModal = ({ isOpen, onClose, onImageSelect }: ImageModalProps) 
               </div>
               <p className={styles['upload-text']}>
                 {isUploading ? 'Загрузка...' : 'Нажмите для выбора файла'}
-              </p>
-              <p className={styles['upload-hint']}>
-                или перетащите изображение сюда
               </p>
               <p className={styles['upload-limit']}>
                 Максимальный размер: 5MB

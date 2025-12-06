@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../../Store/hooks';
-import { login, register, clearError } from '../../Store/auth/authSlice';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { login, register, clearError } from '../../store/auth/authSlice';
 import { useAuthForm } from '../../hooks/useAuthForm';
 import styles from './AuthForm.module.css';
 
@@ -140,9 +140,17 @@ interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: string;
 }
 
-const InputField = ({ error, ...props }: InputFieldProps) => (
+const InputField = (
+  { 
+    error, 
+    ...props 
+  }: InputFieldProps
+) => (
   <div className={styles['form-group']}>
     <input {...props} className={styles['input-holder']} />
-    {error && <span className={styles['error-text']}>{error}</span>}
+    {error && 
+      <span className={styles['error-text']}>
+        {error}
+      </span>}
   </div>
 );
