@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { login, register, clearError } from '../../store/auth/authSlice';
 import { useAuthForm } from '../../hooks/useAuthForm';
+import { InputField } from './InputField';
 import styles from './AuthForm.module.css';
 
 export const AuthForm = () => {
@@ -135,22 +136,3 @@ export const AuthForm = () => {
     </div>
   );
 };
-
-interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  error?: string;
-}
-
-const InputField = (
-  { 
-    error, 
-    ...props 
-  }: InputFieldProps
-) => (
-  <div className={styles['form-group']}>
-    <input {...props} className={styles['input-holder']} />
-    {error && 
-      <span className={styles['error-text']}>
-        {error}
-      </span>}
-  </div>
-);
